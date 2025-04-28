@@ -400,9 +400,9 @@ def log_out_cylinder(cylinder_id):
 import os
 
 if __name__ == '__main__':
-    # Create the database file on first run
     with app.app_context():
         db.create_all()
+    print("✅ Database tables created!")  # <--- Add this
     app.run(debug=True)
 
     port = int(os.environ.get('PORT', 5000))  # ✅ Use Render-provided PORT
