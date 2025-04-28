@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register Cylinder</title>
+</head>
+<body>
+    <h2>Register New Gas Cylinder</h2>
+<form action="/register" method="post">
+    <label>Name:</label><br>
+    <input type="text" name="gas_type" required><br><br>
+
+    <label>Size:</label><br>
+    <input type="text" name="size" placeholder="e.g. 300, 200, -" required><br><br>
+
+    <label>Status:</label><br>
+    <select name="status" required>
+        <option value="Full">Full</option>
+        <option value="75%">75%</option>
+        <option value="50%">50%</option>
+        <option value="25%">25%</option>
+        <option value="Empty">Empty</option>
+        <option value="Returned">Returned</option>
+    </select><br><br>
+
+    <input type="submit" value="Register Cylinder">
+</form>
+
+
+<br><br>
+<a href="/cylinders">📋 View All Cylinders</a> |
+<a href="/dashboard">📊 Dashboard</a>
+<a href="/logout">🚪 Logout</a>
+
+</body>
+</html>
+
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Update Cylinder Status</title>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <style>
+        #reader video {
+            transform: scaleX(-1);  /* ✅ Fix mirror effect */
+        }
+    </style>
+</head>
+<body>
+    <h2>🔍 Find & Update Cylinder</h2>
+
+    <form method="post">
+        <label>Scan or Enter Barcode:</label><br>
+        <input type="text" name="barcode" required>
+        <input type="submit" value="Search">
+    </form>
+    
+    <h4>📷 Scan Barcode</h4>
+<div id="reader" style="width:300px;"></div>
+<button onclick="startScanner()">Start Scanner</button>
+<button onclick="stopScanner()">Stop Scanner</button>
+
+<script>
+    let scanner;
+
+    function startScanner() {
+        scanner = new Html5Qrcode("reader");
+        const config = { fps: 10, qrbox: 250 };
+
+        scanner.start(
+            { facingMode: "environment" }, // Rear camera
+            config,
+            (decodedText, decodedResult) => {
+                document.querySelector('input[name="barcode"]').value = decodedText;
+                scanner.stop().then(() => {
+                    document.getElementById("reader").innerHTML = "";
+                    document.querySelector('form').submit();  // Auto-submit the form
+                });
+            },
+            (errorMessage) => {
+                // Ignore scanning errors
+            }
+        ).catch((err) => {
+            console.error("Camera error: ", err);
+        });
+    }
+
+    function stopScanner() {
+        if (scanner) {
+            scanner.stop().then(() => {
+                document.getElementById("reader").innerHTML = "";
+            });
+        }
+    }
+</script>
+
+    {% if cylinder %}
+    <hr>
+    <h3>🔧 Update Status for Cylinder {{ cylinder.barcode }}</h3>
+    <p>Type: {{ cylinder.cylinder_type }}<br>
+       Gas: {{ cylinder.gas_type }}<br>
+       Size: {{ cylinder.size }}<br>
+       Current Status: <b>{{ cylinder.status }}</b></p>
+
+    <form method="post">
+        <input type="hidden" name="barcode" value="{{ cylinder.barcode }}">
+        <label>New Status:</label><br>
+        <select name="new_status" required>
+            <option value="Full">Full</option>
+            <option value="75%">75%</option>
+            <option value="50%">50%</option>
+            <option value="25%">25%</option>
+            <option value="Empty">Empty</option>
+	    <option value="Returned">Returned</option>
+        </select><br><br>
+        <input type="submit" name="update" value="✅ Update Status">
+    </form>
+    {% endif %}
+
+    <br><a href="/">🏠 Register New</a> | <a href="/cylinders">📋 View All</a>
+	<a href="/logout">🚪 Logout</a>
+
+</body>
+</html>

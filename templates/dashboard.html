@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cylinder Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h2>📊 Cylinder Status Dashboard</h2>
+
+    <!-- SUMMARY COUNTERS -->
+    <div style="display: flex; justify-content: center; gap: 30px; margin-bottom: 20px;">
+        <div style="text-align: center;">
+            <h3>Total</h3>
+            <div style="font-size: 24px; font-weight: bold;">{{ total_count }}</div>
+        </div>
+        <div style="text-align: center; color: green;">
+            <h3>Available</h3>
+            <div style="font-size: 24px; font-weight: bold;">{{ available_count }}</div>
+        </div>
+        <div style="text-align: center; color: gray;">
+            <h3>Returned</h3>
+            <div style="font-size: 24px; font-weight: bold;">{{ returned_count }}</div>
+        </div>
+    </div>
+
+    <!-- PIE CHART -->
+    <div style="max-width: 300px; margin: auto;">
+        <canvas id="statusChart"></canvas>
+    </div>
+
+    <!-- BAR CHART -->
+    <h3 style="text-align: center;">📆 Cylinders Registered Over Time</h3>
+    <div style="max-width: 600px; margin: auto;">
+        <canvas id="barChart"></canvas>
+    </div>
+
+    <!-- GAS TYPE CHART -->
+    <h3 style="text-align: center;">🧪 Cylinders by Gas Type</h3>
+    <div style="max-width: 600px; margin: auto;">
+        <canvas id="gasChart"></canvas>
+    </div>
+
+    <!-- GAS CHART SCRIPT -->
+    <script>
+        const gasCtx = document.getElementById('gasChart').getContext('2d');
+        const gasChart = new Chart(gasCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ gas_labels|safe }},
+                datasets: [{
+                    label: 'Cylinders by Gas Type',
+                    data: {{ gas_counts|safe }},
+                    backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { precision: 0 }
+                    }
+                }
+            }
+        });
+    </script>
+
+    <!-- PIE CHART SCRIPT -->
+    <script>
+        const ctx = document.getElementById('statusChart').getContext('2d');
+        const statusChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: {{ labels|safe }},
+                datasets: [{
+                    label: 'Cylinder Status',
+                    data: {{ counts|safe }},
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Gas Cylinder Inventory Status'
+                    }
+                }
+            }
+        });
+    </script>
+
+    <!-- BAR CHART SCRIPT -->
+    <script>
+        const barCtx = document.getElementById('barChart').getContext('2d');
+        const barChart = new Chart(barCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ bar_labels|safe }},
+                datasets: [{
+                    label: 'Cylinders Registered',
+                    data: {{ bar_values|safe }},
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+
+    <br>
+    <div style="text-align: center;">
+        <a href="/">🏠 Register</a> |
+        <a href="/cylinders">📋 View All</a> |
+        <a href="/update">🔄 Update</a> |
+        <a href="/report/filter">🧾 Export PDF Report (Filtered)</a> |
+        <a href="/logout">🚪 Logout</a>
+    </div>
+</body>
+</html>

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Status History</title>
+</head>
+<body>
+    <h2>📘 Status History for Cylinder: {{ cylinder.barcode }}</h2>
+
+    <p>
+        <b>Type:</b> {{ cylinder.cylinder_type }}<br>
+        <b>Gas:</b> {{ cylinder.gas_type }}<br>
+        <b>Size:</b> {{ cylinder.size }}<br>
+        <b>Current Status:</b> {{ cylinder.status }}
+    </p>
+
+    <table border="1" cellpadding="5">
+        <tr>
+            <th>Timestamp</th>
+            <th>Old Status</th>
+            <th>New Status</th>
+        </tr>
+        {% for h in history %}
+        <tr>
+            <td>{{ h.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+            <td>{{ h.old_status }}</td>
+            <td>{{ h.new_status }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <br>
+    <a href="/cylinders">⬅️ Back to All Cylinders</a>
+</body>
+</html>

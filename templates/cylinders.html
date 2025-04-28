@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>All Cylinders</title>
+</head>
+<body>
+    <h2>All Registered Cylinders</h2>
+
+    <!-- 🔍 Dropdown Filters -->
+    <form method="get" style="text-align: center; margin-bottom: 20px;">
+        <label><b>Filter by Gas Type:</b></label>
+        <select name="gas_type">
+            <option value="">-- All --</option>
+            {% for gas in gas_types %}
+                <option value="{{ gas }}" {% if gas == selected_gas %}selected{% endif %}>{{ gas }}</option>
+            {% endfor %}
+        </select>
+
+        &nbsp;&nbsp;
+
+        <label><b>Status:</b></label>
+        <select name="status">
+            <option value="">-- All --</option>
+            {% for status in status_list %}
+                <option value="{{ status }}" {% if status == selected_status %}selected{% endif %}>{{ status }}</option>
+            {% endfor %}
+        </select>
+
+        <input type="submit" value="Filter">
+    </form>
+
+    <!-- 📋 Simplified Cylinder Table -->
+    <table border="1" cellpadding="5">
+        <tr>
+            <th>Name</th>
+            <th>Size</th>
+            <th>Status</th>
+            <th>QR Code</th>
+            <th>History</th>
+            <th>Movement</th>
+            <th>Log Out</th>
+        </tr>
+
+        {% for cyl in cylinders %}
+        <tr>
+            <td>{{ cyl.gas_type }}</td>
+            <td>{{ cyl.size }}</td>
+            <td>{{ cyl.status }}</td>
+            <td>
+                <a href="/static/qrcodes/{{ cyl.barcode }}.png" download>📥 Download</a>
+            </td>
+            <td>
+                <a href="/history/{{ cyl.id }}">📘 View</a>
+            </td>
+            <td>
+                <a href="/movement/{{ cyl.id }}">🧾 View</a>
+            </td>
+            <td>
+                <a href="/log_out/{{ cyl.id }}">🔁 Log OUT</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <br>
+    <div style="text-align: center;">
+        <a href="/">➕ Register New Cylinder</a> |
+        <a href="/dashboard">📊 Dashboard</a> |
+        <a href="/export">⬇️ Export to CSV</a> |
+        <a href="/report">🧾 Download PDF Report</a> |
+        <a href="/logout">🚪 Logout</a>
+    </div>
+</body>
+</html>
