@@ -402,7 +402,8 @@ import os
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    print("✅ Database tables created!")  # <--- Add this
+        print("✅ Database tables created!")  # <--- Add this
+	    
     app.run(debug=True)
 
     port = int(os.environ.get('PORT', 5000))  # ✅ Use Render-provided PORT
