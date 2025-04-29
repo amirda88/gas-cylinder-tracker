@@ -47,7 +47,17 @@ class MovementLog(db.Model):
     note = db.Column(db.String(200))
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
+# app.py
 
+@app.route('/delete_cylinder/<int:id>', methods=['GET'])
+def delete_cylinder(id):
+    if not session.get('role') == 'admin':
+        return "Unauthorized", 403
+
+    cylinder = Cylinder.query.get_or_404(id)
+    db.session.delete(cylinder)
+    db.session.commit()
+    return redirect(url_for('list_cylinders'))
 
 # Home page: Registration form
 @app.route('/')
