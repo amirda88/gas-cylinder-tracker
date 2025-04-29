@@ -399,12 +399,15 @@ def log_out_cylinder(cylinder_id):
 
 import os
 
+# Create tables immediately when app is imported (works with Gunicorn too)
+with app.app_context():
+    db.create_all()
+    print("✅ Database tables created (before Gunicorn)!")
+
+# Only run server when developing locally
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-        print("✅ Database tables created!")  # <--- Add this
-	    
     app.run(debug=True)
+
 
     port = int(os.environ.get('PORT', 5000))  # ✅ Use Render-provided PORT
     app.run(host='0.0.0.0', port=port)
