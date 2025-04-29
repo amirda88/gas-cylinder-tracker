@@ -29,38 +29,47 @@
         <input type="submit" value="Filter">
     </form>
 
-    <!-- 📋 Simplified Cylinder Table -->
     <table border="1" cellpadding="5">
-        <tr>
-            <th>Name</th>
-            <th>Size</th>
-            <th>Status</th>
-            <th>QR Code</th>
-            <th>History</th>
-            <th>Movement</th>
-            <th>Log Out</th>
-        </tr>
+    <tr>
+        <th>Name</th>
+        <th>Size</th>
+        <th>Status</th>
+        <th>QR Code</th>
+        <th>History</th>
+        <th>Movement</th>
+        <th>Log Out</th>
+        {% if session.get('role') == 'admin' %}
+            <th>Delete</th>  <!-- Add Delete column header if Admin -->
+        {% endif %}
+    </tr>
 
-        {% for cyl in cylinders %}
-        <tr>
-            <td>{{ cyl.gas_type }}</td>
-            <td>{{ cyl.size }}</td>
-            <td>{{ cyl.status }}</td>
-            <td>
-                <a href="/static/qrcodes/{{ cyl.barcode }}.png" download>📥 Download</a>
-            </td>
-            <td>
-                <a href="/history/{{ cyl.id }}">📘 View</a>
-            </td>
-            <td>
-                <a href="/movement/{{ cyl.id }}">🧾 View</a>
-            </td>
-            <td>
-                <a href="/log_out/{{ cyl.id }}">🔁 Log OUT</a>
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
+    {% for cyl in cylinders %}
+    <tr>
+        <td>{{ cyl.gas_type }}</td>
+        <td>{{ cyl.size }}</td>
+        <td>{{ cyl.status }}</td>
+        <td>
+            <a href="/static/qrcodes/{{ cyl.barcode }}.png" download>📥 Download</a>
+        </td>
+        <td>
+            <a href="/history/{{ cyl.id }}">📘 View</a>
+        </td>
+        <td>
+            <a href="/movement/{{ cyl.id }}">🧾 View</a>
+        </td>
+        <td>
+            <a href="/log_out/{{ cyl.id }}">🔁 Log OUT</a>
+        </td>
+        
+        {% if session.get('role') == 'admin' %}
+        <td>
+            <a href="/delete_cylinder/{{ cyl.id }}" onclick="return confirm('Are you sure you want to delete this cylinder?')">🗑️ Delete</a>
+        </td>
+        {% endif %}
+    </tr>
+    {% endfor %}
+</table>
+
 
     <br>
     <div style="text-align: center;">
