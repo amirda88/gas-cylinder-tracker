@@ -348,16 +348,24 @@ def login():
 		username = request.form['username']
 		password = request.form['password']
 
-		# ✅ Multiple hardcoded users
-		if (username == 'admin' and password == 'admin123') or \
-			(username == 'neda' and password == 'mypassword') or \
-			(username == 'amir' and password == 'gas88'):
+		# ✅ Assign roles to each user
+		users = {
+			'admin': {'password': 'admin123', 'role': 'admin'},
+			'neda': {'password': 'mypassword', 'role': 'user'},
+			'amir': {'password': 'gas88', 'role': 'user'}
+		}
+
+		user = users.get(username)
+		if user and user['password'] == password:
 			session['logged_in'] = True
+			session['username'] = username
+			session['role'] = user['role']  # ✅ Save the user's role in the session
 			return redirect(url_for('home'))
 		else:
 			return render_template('login.html', error='Invalid username or password.')
 
 	return render_template('login.html')
+
 
 @app.route('/history/<int:cylinder_id>')
 def view_history(cylinder_id):
