@@ -398,15 +398,19 @@ def log_out_cylinder(cylinder_id):
 
 
 import os
+from sqlalchemy import inspect
 
-# Create tables immediately when app is imported (works with Gunicorn too)
 with app.app_context():
-    db.create_all()
-    print("✅ Database tables created (before Gunicorn)!")
+    inspector = inspect(db.engine)
+    if not inspector.has_table("cylinder"):
+        db.create_all()
+        print("✅ Database tables created (first time)!")
+    else:
+        print("✅ Database already exists, skipping creation.")
 
-# Only run server when developing locally
 if __name__ == '__main__':
     app.run(debug=True)
+
 
 
     port = int(os.environ.get('PORT', 5000))  # ✅ Use Render-provided PORT
