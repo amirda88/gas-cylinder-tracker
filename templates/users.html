@@ -1,13 +1,14 @@
-<!-- templates/users.html -->
 <!DOCTYPE html>
 <html>
 <head>
-    <title>User Management</title>
+    <title>👤 User Management</title>
 </head>
 <body>
-    <h2>👥 User Management</h2>
+    <h2>👥 All Users</h2>
+
     <table border="1" cellpadding="8">
         <tr>
+            <th>ID</th>
             <th>Username</th>
             <th>Role</th>
             <th>Permissions</th>
@@ -15,16 +16,20 @@
         </tr>
         {% for user in users %}
         <tr>
+            <td>{{ user.id }}</td>
             <td>{{ user.username }}</td>
             <td>{{ user.role }}</td>
             <td>{{ user.permissions }}</td>
             <td>
-                <a href="{{ url_for('edit_user', user_id=user.id) }}">✏️ Edit</a>
+                <a href="{{ url_for('edit_user', user_id=user.id) }}">✏️ Edit</a> |
+                <a href="{{ url_for('delete_user', user_id=user.id) }}" onclick="return confirm('Are you sure?')">🗑️ Delete</a>
             </td>
         </tr>
         {% endfor %}
     </table>
+
     <br>
+    <a href="/add_user">➕ Add New User</a> |
     <a href="/">🏠 Back to Home</a>
 </body>
 </html>
