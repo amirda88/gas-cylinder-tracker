@@ -84,6 +84,11 @@ def edit_user(user_id):
 
     return render_template('edit_user.html', user=user)
 
+# ✅ Add this before your route definitions
+def has_permission(permission_name):
+    return permission_name in session.get('permissions', [])
+
+
 
 # Home page: Registration form
 @app.route('/')
