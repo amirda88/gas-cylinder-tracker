@@ -55,6 +55,10 @@ class User(db.Model):
     permissions = db.Column(db.String(500), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+# ✅ Add this before your route definitions (after the User model is okay)
+def has_permission(permission_name):
+    return permission_name in session.get('permissions', [])
+
 
 # Home page: Registration form
 @app.route('/')
