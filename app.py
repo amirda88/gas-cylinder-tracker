@@ -14,12 +14,12 @@ app.secret_key = 'supersecret123'  # 🛡️ Required for login session
 
 
 # Database setup
-basedir = os.path.abspath(os.path.dirname(__file__))
-db_path = os.path.join(basedir, 'cylinders.db')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
+# PostgreSQL database setup (Render)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://admin:IogWBRVd24QjJQZR9dfAf4cqWC5QbXX8@dpg-d09aan49c44c73dc7e1g-a.oregon-postgres.render.com/cylinders'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
+
 
 # Define the Cylinder model
 class Cylinder(db.Model):
