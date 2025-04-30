@@ -363,23 +363,20 @@ def login():
 		username = request.form['username']
 		password = request.form['password']
 
-		# ✅ Assign roles to each user
-		users = {
-			'admin': {'password': 'admin123', 'role': 'admin'},
-			'neda': {'password': 'mypassword', 'role': 'user'},
-			'amir': {'password': 'gas88', 'role': 'user'}
-		}
 
-		user = users.get(username)
-		if user and user['password'] == password:
-			session['logged_in'] = True
-			session['username'] = username
-			session['role'] = user['role']  # ✅ Save the user's role in the session
-			return redirect(url_for('home'))
-		else:
-			return render_template('login.html', error='Invalid username or password.')
+# ✅ Assign roles to each user
+user = User.query.filter_by(username=username, password=password).first()
+if user:
+    session['logged_in'] = True
+    session['username'] = user.username
+    session['role'] = user.role
+    session['permissions'] = user.permissions.split(',') if user.permissions else []
+    return redirect(url_for('home'))
+else:
+    return render_template('login.html', error='Invalid username or password.')
 
-	return render_template('login.html')
+return render_template('login.html')
+
 
 
 @app.route('/history/<int:cylinder_id>')
