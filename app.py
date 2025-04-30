@@ -429,8 +429,15 @@ def log_out_cylinder(cylinder_id):
 
 
 
+from sqlalchemy import inspect
+
 with app.app_context():
-    db.create_all()
+    inspector = inspect(db.engine)
+    if not inspector.has_table("cylinder"):
+        db.create_all()
+        print("✅ Database tables created (first time)!")
+    else:
+        print("✅ Database already exists, skipping creation.")
 
     # ✅ Create admin user if not exist
     if not User.query.filter_by(username='admin').first():
@@ -446,10 +453,5 @@ with app.app_context():
     else:
         print('✅ Admin user already exists.')
 
-
 if __name__ == '__main__':
     app.run(debug=True)
-
-
-    port = int(os.environ.get('PORT', 5000))  # ✅ Use Render-provided PORT
-    app.run(host='0.0.0.0', port=port)
