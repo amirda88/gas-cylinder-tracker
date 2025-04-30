@@ -55,9 +55,34 @@ class User(db.Model):
     permissions = db.Column(db.String(500), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-# ✅ Add this before your route definitions (after the User model is okay)
-def has_permission(permission_name):
-    return permission_name in session.get('permissions', [])
+# 🔐 View all users (admin only)
+@app.route('/users')
+def view_users():
+    if not session.get('logged_in'):
+        return redirect('/login')
+    if session.get('role') != 'admin':
+        return "⛔ You don't have access to view users.", 403
+
+    users = User.query.all()
+    return render_template('user_list.html', users=users)
+
+# ✏️ Edit a user's role and permissions
+@app.route('/edit_user/<int:user_id>', methods=['GET', 'POST'])
+def edit_user(user_id):
+    if not session.get('logged_in'):
+        return redirect('/login')
+    if session.get('role') != 'admin':
+        return "⛔ You don't have access to edit users.", 403
+
+    user = User.query.get_or_404(user_id)
+
+    if request.method == 'POST':
+        user.role = request.form['role']
+        user.permissions = request.form['permissions']
+        db.session.commit()
+        return redirect('/users')
+
+    return render_template('edit_user.html', user=user)
 
 
 # Home page: Registration form
@@ -116,14 +141,13 @@ def register():
 
 @app.route('/delete_cylinder/<int:id>', methods=['GET'])
 def delete_cylinder(id):
-    if not has_permission('delete'):
-        return "⛔ You don't have permission to delete cylinders.", 403
+    if not session.get('role') == 'admin':
+        return "Unauthorized", 403
 
     cylinder = Cylinder.query.get_or_404(id)
     db.session.delete(cylinder)
     db.session.commit()
     return redirect(url_for('list_cylinders'))
-
 
 
 @app.route('/cylinders')
@@ -360,24 +384,27 @@ def report_filter_page():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
+	if request.method == 'POST':
+		username = request.form['username']
+		password = request.form['password']
 
-        # ✅ Check user in database
-        user = User.query.filter_by(username=username, password=password).first()
-        if user:
-            session['logged_in'] = True
-            session['username'] = user.username
-            session['role'] = user.role
-            session['permissions'] = user.permissions.split(',') if user.permissions else []
-            return redirect(url_for('home'))
-        else:
-            return render_template('login.html', error='Invalid username or password.')
+		# ✅ Assign roles to each user
+		users = {
+			'admin': {'password': 'admin123', 'role': 'admin'},
+			'neda': {'password': 'mypassword', 'role': 'user'},
+			'amir': {'password': 'gas88', 'role': 'user'}
+		}
 
-    return render_template('login.html')
+		user = users.get(username)
+		if user and user['password'] == password:
+			session['logged_in'] = True
+			session['username'] = username
+			session['role'] = user['role']  # ✅ Save the user's role in the session
+			return redirect(url_for('home'))
+		else:
+			return render_template('login.html', error='Invalid username or password.')
 
-
+	return render_template('login.html')
 
 
 @app.route('/history/<int:cylinder_id>')
@@ -431,15 +458,8 @@ def log_out_cylinder(cylinder_id):
 
 
 
-from sqlalchemy import inspect
-
 with app.app_context():
-    inspector = inspect(db.engine)
-    if not inspector.has_table("cylinder"):
-        db.create_all()
-        print("✅ Database tables created (first time)!")
-    else:
-        print("✅ Database already exists, skipping creation.")
+    db.create_all()
 
     # ✅ Create admin user if not exist
     if not User.query.filter_by(username='admin').first():
@@ -455,5 +475,10 @@ with app.app_context():
     else:
         print('✅ Admin user already exists.')
 
+
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+    port = int(os.environ.get('PORT', 5000))  # ✅ Use Render-provided PORT
+    app.run(host='0.0.0.0', port=port)
