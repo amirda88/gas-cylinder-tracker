@@ -1,23 +1,28 @@
-<!-- templates/edit_user.html -->
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Edit User</title>
+    <title>✏️ Edit User</title>
 </head>
 <body>
-    <h2>✏️ Edit User: {{ user.username }}</h2>
+    <h2>✏️ Edit User</h2>
 
-    <form method="post">
+    <form method="POST">
+        <label>Username:</label><br>
+        <input type="text" value="{{ user.username }}" readonly><br><br>
+
         <label>Role:</label><br>
-        <input type="text" name="role" value="{{ user.role }}" required><br><br>
+        <select name="role">
+            <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>admin</option>
+            <option value="user" {% if user.role == 'user' %}selected{% endif %}>user</option>
+        </select><br><br>
 
-        <label>Permissions (comma-separated):</label><br>
+        <label>Permissions (comma separated):</label><br>
         <input type="text" name="permissions" value="{{ user.permissions }}"><br><br>
 
         <input type="submit" value="💾 Save Changes">
     </form>
 
     <br>
-    <a href="/users">⬅️ Back to User List</a>
+    <a href="/users">👈 Back to User List</a>
 </body>
 </html>
