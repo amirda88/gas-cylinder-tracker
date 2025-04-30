@@ -64,7 +64,7 @@ def view_users():
         return "⛔ You don't have access to view users.", 403
 
     users = User.query.all()
-    return render_template('user_list.html', users=users)
+    return render_template('users.html', users=users)
 
 # ✏️ Edit a user's role and permissions
 @app.route('/edit_user/<int:user_id>', methods=['GET', 'POST'])
