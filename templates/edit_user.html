@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>✏️ Edit User</title>
+    <title>Edit User</title>
 </head>
 <body>
-    <h2>✏️ Edit User: {{ user.username }}</h2>
+    <h2>✏️ Edit User - {{ user.username }}</h2>
 
     <form method="POST">
         <label>Role:</label><br>
@@ -16,10 +16,9 @@
         <label>Permissions (comma-separated):</label><br>
         <input type="text" name="permissions" value="{{ user.permissions }}"><br><br>
 
-        <input type="submit" value="💾 Save Changes">
+        <input type="submit" value="Update User">
     </form>
 
-    <br>
-    <a href="/users">👥 Back to Users</a>
+    <br><a href="/users">👈 Back to User List</a>
 </body>
 </html>
