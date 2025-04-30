@@ -47,17 +47,14 @@ class MovementLog(db.Model):
     note = db.Column(db.String(200))
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
-# app.py
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(100), unique=True, nullable=False)
+    password = db.Column(db.String(100), nullable=False)
+    role = db.Column(db.String(50), nullable=False)
+    permissions = db.Column(db.String(500), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-@app.route('/delete_cylinder/<int:id>', methods=['GET'])
-def delete_cylinder(id):
-    if not session.get('role') == 'admin':
-        return "Unauthorized", 403
-
-    cylinder = Cylinder.query.get_or_404(id)
-    db.session.delete(cylinder)
-    db.session.commit()
-    return redirect(url_for('list_cylinders'))
 
 # Home page: Registration form
 @app.route('/')
@@ -69,6 +66,11 @@ def home():
 # Save form data to database
 @app.route('/register', methods=['POST'])
 def register():
+    if not session.get('logged_in'):
+        return redirect('/login')
+    if not has_permission('register'):
+        return "⛔ You don't have permission to register cylinders.", 403
+
     gas_type = request.form['gas_type']
     size = request.form['size']
     status = request.form['status']
@@ -85,7 +87,7 @@ def register():
     qr.save(qr_filename)
 
     new_cylinder = Cylinder(
-        cylinder_type="Simple",  # or leave empty if you'd like
+        cylinder_type="Simple",
         gas_type=gas_type,
         size=size,
         status=status,
@@ -106,24 +108,34 @@ def register():
     '''
 
 
+# app.py
+
+@app.route('/delete_cylinder/<int:id>', methods=['GET'])
+def delete_cylinder(id):
+    if not session.get('role') == 'admin':
+        return "Unauthorized", 403
+
+    cylinder = Cylinder.query.get_or_404(id)
+    db.session.delete(cylinder)
+    db.session.commit()
+    return redirect(url_for('list_cylinders'))
+
 
 @app.route('/cylinders')
 def list_cylinders():
     if not session.get('logged_in'):
         return redirect('/login')
+    if not has_permission('view_all'):
+        return "⛔ You don't have permission to view cylinders.", 403
 
     # Distinct gas types from database
     gas_types = [row[0] for row in db.session.query(Cylinder.gas_type).distinct().all()]
-    # Predefined status list
     status_list = ['Full', '75%', '50%', '25%', 'Empty', 'Returned']
 
-    # Get filters from URL
     selected_gas = request.args.get('gas_type')
     selected_status = request.args.get('status')
 
-    # Base query
     query = Cylinder.query
-
     if selected_gas:
         query = query.filter(Cylinder.gas_type == selected_gas)
     if selected_status:
@@ -139,6 +151,7 @@ def list_cylinders():
         selected_gas=selected_gas,
         selected_status=selected_status
     )
+
 
 @app.route('/update', methods=['GET', 'POST'])
 def update_status():
@@ -186,18 +199,17 @@ def update_status():
 def dashboard():
     if not session.get('logged_in'):
         return redirect('/login')
+    if not has_permission('dashboard'):
+        return "⛔ You don't have permission to view dashboard.", 403
 
-    # Pie Chart (Statuses excluding 'Returned')
     statuses = ['Full', '75%', '50%', '25%', 'Empty']
-    labels = []
-    counts = []
+    labels, counts = [], []
 
     for status in statuses:
         count = Cylinder.query.filter(Cylinder.status == status).count()
         labels.append(status)
         counts.append(count)
 
-    # Registration Timeline (excluding Returned)
     from collections import defaultdict
     daily_counts = defaultdict(int)
     for cyl in Cylinder.query.filter(Cylinder.status != 'Returned').all():
@@ -209,7 +221,6 @@ def dashboard():
     bar_labels = sorted_dates
     bar_values = [daily_counts[date] for date in sorted_dates]
 
-    # Gas Type Bar Chart (excluding Returned)
     from sqlalchemy import func
     gas_data = db.session.query(
         Cylinder.gas_type, func.count(Cylinder.id)
@@ -218,7 +229,6 @@ def dashboard():
     gas_labels = [g[0] for g in gas_data]
     gas_counts = [g[1] for g in gas_data]
 
-    # ✅ Inventory summary counts (inside the function)
     total_count = Cylinder.query.count()
     available_count = Cylinder.query.filter(Cylinder.status != "Returned").count()
     returned_count = Cylinder.query.filter(Cylinder.status == "Returned").count()
@@ -235,6 +245,7 @@ def dashboard():
         available_count=available_count,
         returned_count=returned_count
     )
+
 
 
 
@@ -392,6 +403,8 @@ def view_movement(cylinder_id):
 def log_out_cylinder(cylinder_id):
     if not session.get('logged_in'):
         return redirect('/login')
+    if not has_permission('log_out'):
+        return "⛔ You don't have permission to log out cylinders.", 403
 
     cylinder = Cylinder.query.get_or_404(cylinder_id)
 
@@ -415,22 +428,28 @@ def log_out_cylinder(cylinder_id):
     '''
 
 
-import os
-from sqlalchemy import inspect
 
 with app.app_context():
-    inspector = inspect(db.engine)
-    if not inspector.has_table("cylinder"):
-        db.create_all()
-        print("✅ Database tables created (first time)!")
+    db.create_all()
+
+    # ✅ Create admin user if not exist
+    if not User.query.filter_by(username='admin').first():
+        admin_user = User(
+            username='admin',
+            password='admin123',
+            role='admin',
+            permissions='register,dashboard,view_all,delete,log_out'
+        )
+        db.session.add(admin_user)
+        db.session.commit()
+        print('✅ Admin user created (username=admin, password=admin123)')
     else:
-        print("✅ Database already exists, skipping creation.")
+        print('✅ Admin user already exists.')
+
 
 if __name__ == '__main__':
     app.run(debug=True)
 
 
-
     port = int(os.environ.get('PORT', 5000))  # ✅ Use Render-provided PORT
     app.run(host='0.0.0.0', port=port)
-
