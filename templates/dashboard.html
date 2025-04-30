@@ -132,5 +132,10 @@
         <a href="/report/filter">🧾 Export PDF Report (Filtered)</a> |
         <a href="/logout">🚪 Logout</a>
     </div>
+{% if session.get('role') == 'admin' %}
+    <br><br>
+    <a href="/users">👤 Manage Users</a>
+{% endif %}
+
 </body>
 </html>
