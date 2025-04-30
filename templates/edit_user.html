@@ -4,25 +4,22 @@
     <title>✏️ Edit User</title>
 </head>
 <body>
-    <h2>✏️ Edit User</h2>
+    <h2>✏️ Edit User: {{ user.username }}</h2>
 
     <form method="POST">
-        <label>Username:</label><br>
-        <input type="text" value="{{ user.username }}" readonly><br><br>
-
         <label>Role:</label><br>
         <select name="role">
-            <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>admin</option>
-            <option value="user" {% if user.role == 'user' %}selected{% endif %}>user</option>
+            <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
+            <option value="user" {% if user.role == 'user' %}selected{% endif %}>User</option>
         </select><br><br>
 
-        <label>Permissions (comma separated):</label><br>
+        <label>Permissions (comma-separated):</label><br>
         <input type="text" name="permissions" value="{{ user.permissions }}"><br><br>
 
         <input type="submit" value="💾 Save Changes">
     </form>
 
     <br>
-    <a href="/users">👈 Back to User List</a>
+    <a href="/users">👥 Back to Users</a>
 </body>
 </html>
