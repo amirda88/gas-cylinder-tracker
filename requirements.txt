@@ -4,4 +4,5 @@ qrcode
 reportlab
 python-barcode
 gunicorn
+psycopg2-binary
 
