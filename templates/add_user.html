@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>➕ Add New User</title>
+    <title>Add New User</title>
 </head>
 <body>
     <h2>➕ Add New User</h2>
@@ -11,7 +11,7 @@
         <input type="text" name="username" required><br><br>
 
         <label>Password:</label><br>
-        <input type="password" name="password" required><br><br>
+        <input type="text" name="password" required><br><br>
 
         <label>Role:</label><br>
         <select name="role">
@@ -20,12 +20,11 @@
         </select><br><br>
 
         <label>Permissions (comma-separated):</label><br>
-        <input type="text" name="permissions" placeholder="register,dashboard,view_all"><br><br>
+        <input type="text" name="permissions" placeholder="e.g. register,view_all"><br><br>
 
-        <input type="submit" value="➕ Add User">
+        <input type="submit" value="Create User">
     </form>
 
-    <br>
-    <a href="/users">👤 Back to User List</a>
+    <br><a href="/users">👈 Back to User List</a>
 </body>
 </html>
