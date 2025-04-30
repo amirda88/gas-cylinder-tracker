@@ -116,13 +116,14 @@ def register():
 
 @app.route('/delete_cylinder/<int:id>', methods=['GET'])
 def delete_cylinder(id):
-    if not session.get('role') == 'admin':
-        return "Unauthorized", 403
+    if not has_permission('delete'):
+        return "⛔ You don't have permission to delete cylinders.", 403
 
     cylinder = Cylinder.query.get_or_404(id)
     db.session.delete(cylinder)
     db.session.commit()
     return redirect(url_for('list_cylinders'))
+
 
 
 @app.route('/cylinders')
@@ -359,23 +360,23 @@ def report_filter_page():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-	if request.method == 'POST':
-		username = request.form['username']
-		password = request.form['password']
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
 
+        # ✅ Check user in database
+        user = User.query.filter_by(username=username, password=password).first()
+        if user:
+            session['logged_in'] = True
+            session['username'] = user.username
+            session['role'] = user.role
+            session['permissions'] = user.permissions.split(',') if user.permissions else []
+            return redirect(url_for('home'))
+        else:
+            return render_template('login.html', error='Invalid username or password.')
 
-# ✅ Assign roles to each user
-user = User.query.filter_by(username=username, password=password).first()
-if user:
-    session['logged_in'] = True
-    session['username'] = user.username
-    session['role'] = user.role
-    session['permissions'] = user.permissions.split(',') if user.permissions else []
-    return redirect(url_for('home'))
-else:
-    return render_template('login.html', error='Invalid username or password.')
+    return render_template('login.html')
 
-return render_template('login.html')
 
 
 
