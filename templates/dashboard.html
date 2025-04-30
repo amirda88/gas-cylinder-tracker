@@ -124,18 +124,18 @@
         });
     </script>
 
-    <br>
-    <div style="text-align: center;">
-        <a href="/">🏠 Register</a> |
-        <a href="/cylinders">📋 View All</a> |
-        <a href="/update">🔄 Update</a> |
-        <a href="/report/filter">🧾 Export PDF Report (Filtered)</a> |
-        <a href="/logout">🚪 Logout</a>
-    </div>
-{% if session.get('role') == 'admin' %}
-    <br><br>
-    <a href="/users">👤 Manage Users</a>
-{% endif %}
+<br>
+<div style="text-align: center;">
+    <a href="/">🏠 Register</a> |
+    <a href="/cylinders">📋 View All</a> |
+    <a href="/update">🔄 Update</a> |
+    <a href="/report/filter">🧾 Export PDF Report (Filtered)</a> |
+    <a href="/logout">🚪 Logout</a>
+    {% if session.get('role') == 'admin' %}
+        | <a href="/users">👤 Manage Users</a>
+    {% endif %}
+</div>
+
 
 </body>
 </html>
