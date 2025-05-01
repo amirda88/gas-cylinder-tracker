@@ -163,10 +163,22 @@ def register():
     Size: {size}<br>
     Status: {status}<br>
     Barcode: {barcode_id}<br><br>
-    <img src="data:image/png;base64,{qr_base64}" alt="QR Code" width="200">
+    <img src="/qr/{barcode_id}" alt="QR Code" width="200">
+    <a href="/qr/{barcode_id}" download="QR-{barcode_id}.png">⬇️ Download QR Code</a>
     <a href="/">➕ Register Another</a> |
     <a href="/cylinders">📋 View Cylinders</a>
     '''
+
+from flask import send_file
+import io
+
+@app.route('/qr/<barcode>')
+def qr_code(barcode):
+    img = qrcode.make(barcode)
+    buffer = io.BytesIO()
+    img.save(buffer, format="PNG")
+    buffer.seek(0)
+    return send_file(buffer, mimetype="image/png")
 
 
 # app.py
