@@ -420,18 +420,15 @@ def login():
 		password = request.form['password']
 
 		# ✅ Assign roles to each user
-		users = {
-			'admin': {'password': 'admin123', 'role': 'admin'},
-			'neda': {'password': 'mypassword', 'role': 'user'},
-			'amir': {'password': 'gas88', 'role': 'user'}
-		}
+		# ✅ Check user in database
+		user = User.query.filter_by(username=username, password=password).first()
+		if user:
+    			session['logged_in'] = True
+   			session['username'] = user.username
+    			session['role'] = user.role
+    			session['permissions'] = user.permissions.split(',') if user.permissions else []
+    			return redirect(url_for('home'))
 
-		user = users.get(username)
-		if user and user['password'] == password:
-			session['logged_in'] = True
-			session['username'] = username
-			session['role'] = user['role']  # ✅ Save the user's role in the session
-			return redirect(url_for('home'))
 		else:
 			return render_template('login.html', error='Invalid username or password.')
 
