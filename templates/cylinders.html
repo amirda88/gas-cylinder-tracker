@@ -48,9 +48,11 @@
         <td>{{ cyl.gas_type }}</td>
         <td>{{ cyl.size }}</td>
         <td>{{ cyl.status }}</td>
-        <td>
-            <a href="/static/qrcodes/{{ cyl.barcode }}.png" download>📥 Download</a>
-        </td>
+	<td>
+	    <img src="/qr/{{ cyl.barcode }}" alt="QR Code" width="80"><br>
+	    <a href="/qr/{{ cyl.barcode }}" download="QR-{{ cyl.barcode }}.png">⬇️ Download</a>
+	</td>
+
         <td>
             <a href="/history/{{ cyl.id }}">📘 View</a>
         </td>
