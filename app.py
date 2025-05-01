@@ -163,7 +163,7 @@ def register():
     Size: {size}<br>
     Status: {status}<br>
     Barcode: {barcode_id}<br><br>
-    <img src="/static/qrcodes/{barcode_id}.png" alt="QR Code" width="200">
+    <img src="data:image/png;base64,{qr_base64}" alt="QR Code" width="200">
     <a href="/">➕ Register Another</a> |
     <a href="/cylinders">📋 View Cylinders</a>
     '''
