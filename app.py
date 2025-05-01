@@ -64,6 +64,24 @@ def view_users():
     users = User.query.all()
     return render_template('users.html', users=users)
 
+@app.route('/add_user', methods=['GET', 'POST'])
+def add_user():
+    if not session.get('logged_in') or session.get('role') != 'admin':
+        return redirect('/login')
+
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        role = request.form['role']
+        permissions = request.form['permissions']
+        new_user = User(username=username, password=password, role=role, permissions=permissions)
+        db.session.add(new_user)
+        db.session.commit()
+        return redirect('/users')
+
+    return render_template('add_user.html')
+
+
 # ✏️ Edit a user's role and permissions
 @app.route('/edit_user/<int:user_id>', methods=['GET', 'POST'])
 def edit_user(user_id):
