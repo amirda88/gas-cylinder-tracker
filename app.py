@@ -13,13 +13,11 @@ app = Flask(__name__)
 app.secret_key = 'supersecret123'  # 🛡️ Required for login session
 
 
-# Database setup
 # PostgreSQL database setup (Render)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://admin:IogWBRVd24QjJQZR9dfAf4cqWC5QbXX8@dpg-d09aan49c44c73dc7e1g-a.oregon-postgres.render.com/cylinders'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
-
 
 # Define the Cylinder model
 class Cylinder(db.Model):
@@ -87,6 +85,16 @@ def edit_user(user_id):
 # ✅ Add this before your route definitions
 def has_permission(permission_name):
     return permission_name in session.get('permissions', [])
+
+@app.route('/delete_user/<int:user_id>')
+def delete_user(user_id):
+    if not session.get('logged_in') or session.get('role') != 'admin':
+        return redirect('/login')
+
+    user = User.query.get_or_404(user_id)
+    db.session.delete(user)
+    db.session.commit()
+    return redirect('/users')
 
 
 
