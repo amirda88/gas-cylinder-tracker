@@ -139,12 +139,13 @@ def register():
     barcode_id = f"CYL-{gas_type[:2].upper()}-{Cylinder.query.count() + 1}"
 
     # Generate QR code image
-    qr_path = os.path.join('static', 'qrcodes')
-    os.makedirs(qr_path, exist_ok=True)
-    qr_filename = os.path.join(qr_path, f"{barcode_id}.png")
-
+    # Generate QR code in memory
+    import io, base64
     qr = qrcode.make(barcode_id)
-    qr.save(qr_filename)
+    img_io = io.BytesIO()
+    qr.save(img_io, format='PNG')
+    img_io.seek(0)
+    qr_base64 = base64.b64encode(img_io.getvalue()).decode('utf-8')
 
     new_cylinder = Cylinder(
         cylinder_type="Simple",
@@ -423,11 +424,12 @@ def login():
 		# ✅ Check user in database
 		user = User.query.filter_by(username=username, password=password).first()
 		if user:
-			session['logged_in'] = True
-			session['username'] = user.username
-			session['role'] = user.role
-			session['permissions'] = user.permissions.split(',') if user.permissions else []
-			return redirect(url_for('home'))
+    			session['logged_in'] = True
+   			session['username'] = user.username
+    			session['role'] = user.role
+    			session['permissions'] = user.permissions.split(',') if user.permissions else []
+    			return redirect(url_for('home'))
+
 		else:
 			return render_template('login.html', error='Invalid username or password.')
 
