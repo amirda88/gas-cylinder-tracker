@@ -416,24 +416,21 @@ def report_filter_page():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-	if request.method == 'POST':
-		username = request.form['username']
-		password = request.form['password']
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
 
-		# ✅ Assign roles to each user
-		# ✅ Check user in database
-		user = User.query.filter_by(username=username, password=password).first()
-		if user:
-    			session['logged_in'] = True
-			session['username'] = user.username
-    			session['role'] = user.role
-    			session['permissions'] = user.permissions.split(',') if user.permissions else []
-    			return redirect(url_for('home'))
+        user = User.query.filter_by(username=username, password=password).first()
+        if user:
+            session['logged_in'] = True
+            session['username'] = user.username
+            session['role'] = user.role
+            session['permissions'] = (user.permissions or '').split(',')
+            return redirect(url_for('dashboard'))  # Make sure you have a dashboard route
+        else:
+            return "❌ Invalid credentials"
+    return render_template('login.html')
 
-		else:
-			return render_template('login.html', error='Invalid username or password.')
-
-	return render_template('login.html')
 
 
 @app.route('/history/<int:cylinder_id>')
