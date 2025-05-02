@@ -425,7 +425,7 @@ def login():
 		user = User.query.filter_by(username=username, password=password).first()
 		if user:
     			session['logged_in'] = True
-   			session['username'] = user.username
+			session['username'] = user.username
     			session['role'] = user.role
     			session['permissions'] = user.permissions.split(',') if user.permissions else []
     			return redirect(url_for('home'))
