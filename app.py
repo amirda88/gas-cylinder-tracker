@@ -438,14 +438,14 @@ def login():
         # ✅ Assign roles to each user
         # ✅ Check user in database
         user = User.query.filter_by(username=username, password=password).first()
-	    if user:
-		session['logged_in'] = True
-		session['username'] = user.username
-		session['role'] = user.role
-		session['permissions'] = user.permissions.split(',') if user.permissions else []
-		return redirect(url_for('home'))
-	    else:
-		    return render_template('login.html', error='Invalid username or password.')
+        if user:
+            session['logged_in'] = True
+            session['username'] = user.username
+            session['role'] = user.role
+            session['permissions'] = user.permissions.split(',') if user.permissions else []
+            return redirect(url_for('home'))
+        else:
+            return render_template('login.html', error='Invalid username or password.')
 
     return render_template('login.html')
 
