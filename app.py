@@ -131,7 +131,7 @@ def register():
     if not has_permission('register'):
         return "⛔ You don't have permission to register cylinders.", 403
 
-    gas_type = request.form['gas_type']
+    gas_type = request.form['gas_type'].strip().upper()
     size = request.form['size']
     status = request.form['status']
 
@@ -163,22 +163,10 @@ def register():
     Size: {size}<br>
     Status: {status}<br>
     Barcode: {barcode_id}<br><br>
-    <img src="/qr/{barcode_id}" alt="QR Code" width="200">
-    <a href="/qr/{barcode_id}" download="QR-{barcode_id}.png">⬇️ Download QR Code</a>
+    <img src="/static/qrcodes/{barcode_id}.png" alt="QR Code" width="200">
     <a href="/">➕ Register Another</a> |
     <a href="/cylinders">📋 View Cylinders</a>
     '''
-
-from flask import send_file
-import io
-
-@app.route('/qr/<barcode>')
-def qr_code(barcode):
-    img = qrcode.make(barcode)
-    buffer = io.BytesIO()
-    img.save(buffer, format="PNG")
-    buffer.seek(0)
-    return send_file(buffer, mimetype="image/png")
 
 
 # app.py
@@ -428,22 +416,24 @@ def report_filter_page():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
+	if request.method == 'POST':
+		username = request.form['username']
+		password = request.form['password']
 
-        user = User.query.filter_by(username=username).first()
-        if user and user.password == password:
-            session['logged_in'] = True
-            session['username'] = user.username
-            session['role'] = user.role
-            session['permissions'] = user.permissions.split(',') if user.permissions else []
-            return redirect(url_for('home'))
-        else:
-            return render_template('login.html', error='Invalid username or password.')
+		# ✅ Assign roles to each user
+		# ✅ Check user in database
+		user = User.query.filter_by(username=username, password=password).first()
+		if user:
+    			session['logged_in'] = True
+   			session['username'] = user.username
+    			session['role'] = user.role
+    			session['permissions'] = user.permissions.split(',') if user.permissions else []
+    			return redirect(url_for('home'))
 
-    return render_template('login.html')
+		else:
+			return render_template('login.html', error='Invalid username or password.')
 
+	return render_template('login.html')
 
 
 @app.route('/history/<int:cylinder_id>')
