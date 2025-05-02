@@ -135,18 +135,24 @@ def register():
     size = request.form['size']
     status = request.form['status']
 
-    # Generate a unique barcode ID
-    barcode_id = f"CYL-{gas_type[:2].upper()}-{Cylinder.query.count() + 1}"
+    # Generate a unique barcode ID (e.g., CYL-PR-1, CYL-PR-2, etc.)
+    prefix = gas_type[:2]
+    existing_barcodes = Cylinder.query.filter(Cylinder.barcode.like(f"CYL-{prefix}-%")).all()
+    next_number = len(existing_barcodes) + 1
+    barcode_id = f"CYL-{prefix}-{next_number}"
 
-    # Generate QR code image
-    # Generate QR code in memory
-    import io, base64
+    # Generate and save QR code image to /static/qrcodes
+    import os
+    import qrcode
+
+    output_folder = os.path.join('static', 'qrcodes')
+    os.makedirs(output_folder, exist_ok=True)
+    qr_path = os.path.join(output_folder, f"{barcode_id}.png")
+
     qr = qrcode.make(barcode_id)
-    img_io = io.BytesIO()
-    qr.save(img_io, format='PNG')
-    img_io.seek(0)
-    qr_base64 = base64.b64encode(img_io.getvalue()).decode('utf-8')
+    qr.save(qr_path)
 
+    # Save cylinder to database
     new_cylinder = Cylinder(
         cylinder_type="Simple",
         gas_type=gas_type,
@@ -157,13 +163,14 @@ def register():
     db.session.add(new_cylinder)
     db.session.commit()
 
+    # Return success message
     return f'''
     ✅ Cylinder saved to database!<br>
     Name: {gas_type}<br>
     Size: {size}<br>
     Status: {status}<br>
     Barcode: {barcode_id}<br><br>
-    <img src="/static/qrcodes/{barcode_id}.png" alt="QR Code" width="200">
+    <img src="/static/qrcodes/{barcode_id}.png" alt="QR Code" width="200"><br>
     <a href="/">➕ Register Another</a> |
     <a href="/cylinders">📋 View Cylinders</a>
     '''
@@ -416,21 +423,24 @@ def report_filter_page():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
+	if request.method == 'POST':
+		username = request.form['username']
+		password = request.form['password']
 
-        user = User.query.filter_by(username=username, password=password).first()
-        if user:
-            session['logged_in'] = True
-            session['username'] = user.username
-            session['role'] = user.role
-            session['permissions'] = (user.permissions or '').split(',')
-            return redirect(url_for('dashboard'))  # Make sure you have a dashboard route
-        else:
-            return "❌ Invalid credentials"
-    return render_template('login.html')
+		# ✅ Assign roles to each user
+		# ✅ Check user in database
+		user = User.query.filter_by(username=username, password=password).first()
+		if user:
+    			session['logged_in'] = True
+			session['username'] = user.username
+    			session['role'] = user.role
+    			session['permissions'] = user.permissions.split(',') if user.permissions else []
+    			return redirect(url_for('home'))
 
+		else:
+			return render_template('login.html', error='Invalid username or password.')
+
+	return render_template('login.html')
 
 
 @app.route('/history/<int:cylinder_id>')
