@@ -117,13 +117,6 @@ def delete_user(user_id):
 
 
 # Home page: Registration form
-@app.route('/')
-def home():
-    if not session.get('logged_in'):
-        return redirect('/login')
-    return render_template('register.html')
-
-# Save form data to database
 @app.route('/register', methods=['POST'])
 def register():
     if not session.get('logged_in'):
@@ -135,17 +128,19 @@ def register():
     size = request.form['size']
     status = request.form['status']
 
-    # Generate a unique barcode ID
-    barcode_id = f"CYL-{gas_type[:2].upper()}-{Cylinder.query.count() + 1}"
+    # Generate a unique barcode ID based on gas type prefix
+    prefix = gas_type[:2]
+    existing_barcodes = Cylinder.query.filter(Cylinder.barcode.like(f"CYL-{prefix}-%")).all()
+    next_number = len(existing_barcodes) + 1
+    barcode_id = f"CYL-{prefix}-{next_number}"
 
-    # Generate QR code image
-    # Generate QR code in memory
+    # Generate QR code and save to static/qrcodes/
     import io, base64
+    import os
     qr = qrcode.make(barcode_id)
-    img_io = io.BytesIO()
-    qr.save(img_io, format='PNG')
-    img_io.seek(0)
-    qr_base64 = base64.b64encode(img_io.getvalue()).decode('utf-8')
+    qr_path = f'static/qrcodes/{barcode_id}.png'
+    os.makedirs(os.path.dirname(qr_path), exist_ok=True)
+    qr.save(qr_path)
 
     new_cylinder = Cylinder(
         cylinder_type="Simple",
@@ -163,10 +158,11 @@ def register():
     Size: {size}<br>
     Status: {status}<br>
     Barcode: {barcode_id}<br><br>
-    <img src="/static/qrcodes/{barcode_id}.png" alt="QR Code" width="200">
+    <img src="/static/qrcodes/{barcode_id}.png" alt="QR Code" width="200"><br>
     <a href="/">➕ Register Another</a> |
     <a href="/cylinders">📋 View Cylinders</a>
     '''
+
 
 
 # app.py
