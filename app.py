@@ -180,13 +180,21 @@ def register():
 
 @app.route('/delete_cylinder/<int:id>', methods=['GET'])
 def delete_cylinder(id):
-    if not session.get('role') == 'admin':
-        return "Unauthorized", 403
+    if not session.get('logged_in') or session.get('role') != 'admin':
+        return redirect('/login')
 
     cylinder = Cylinder.query.get_or_404(id)
+
+    # ❗ Delete related movement logs first
+    MovementLog.query.filter_by(cylinder_id=id).delete()
+
+    # ❗ Also delete related status history if needed
+    StatusHistory.query.filter_by(cylinder_id=id).delete()
+
     db.session.delete(cylinder)
     db.session.commit()
     return redirect(url_for('list_cylinders'))
+
 
 
 @app.route('/cylinders')
@@ -431,11 +439,11 @@ def login():
 		# ✅ Check user in database
 		user = User.query.filter_by(username=username, password=password).first()
 		if user:
-			session['logged_in'] = True
+    			session['logged_in'] = True
 			session['username'] = user.username
-			session['role'] = user.role
-			session['permissions'] = user.permissions.split(',') if user.permissions else []
-			return redirect(url_for('home'))
+    			session['role'] = user.role
+    			session['permissions'] = user.permissions.split(',') if user.permissions else []
+    			return redirect(url_for('home'))
 
 		else:
 			return render_template('login.html', error='Invalid username or password.')
@@ -510,15 +518,6 @@ with app.app_context():
         print('✅ Admin user created (username=admin, password=admin123)')
     else:
         print('✅ Admin user already exists.')
-
-
-@app.route('/qr/<barcode>')
-def serve_qr(barcode):
-    qr_path = os.path.join('static', 'qrcodes', f"{barcode}.png")
-    if os.path.exists(qr_path):
-        return send_file(qr_path, mimetype='image/png')
-    return "❌ QR code not found", 404
-
 
 
 if __name__ == '__main__':
