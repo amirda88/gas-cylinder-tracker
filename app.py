@@ -512,6 +512,15 @@ with app.app_context():
         print('✅ Admin user already exists.')
 
 
+@app.route('/qr/<barcode>')
+def serve_qr(barcode):
+    qr_path = os.path.join('static', 'qrcodes', f"{barcode}.png")
+    if os.path.exists(qr_path):
+        return send_file(qr_path, mimetype='image/png')
+    return "❌ QR code not found", 404
+
+
+
 if __name__ == '__main__':
     app.run(debug=True)
 
