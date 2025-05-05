@@ -124,6 +124,7 @@ def home():
     return render_template('register.html')
 
 # Save form data to database
+# Save form data to database
 @app.route('/register', methods=['POST'])
 def register():
     if not session.get('logged_in'):
@@ -141,8 +142,6 @@ def register():
     next_number = len(existing_barcodes) + 1
     barcode_id = f"CYL-{prefix}-{next_number}"
 
-
-
     # Save cylinder to database
     new_cylinder = Cylinder(
         cylinder_type="Simple",
@@ -154,18 +153,19 @@ def register():
     db.session.add(new_cylinder)
     db.session.commit()
 
-    # Return success message
-return f'''
-✅ Cylinder saved to database!<br>
-Name: {gas_type}<br>
-Size: {size}<br>
-Status: {status}<br>
-Barcode: {barcode_id}<br><br>
-<img src="/qr/{barcode_id}" alt="QR Code" width="200"><br>
-<a href="/qr/{barcode_id}" download="QR-{barcode_id}.png">⬇️ Download</a><br>
-<a href="/">➕ Register Another</a> |
-<a href="/cylinders">📋 View Cylinders</a>
-'''
+    # ✅ Return response (correctly indented)
+    return f'''
+    ✅ Cylinder saved to database!<br>
+    Name: {gas_type}<br>
+    Size: {size}<br>
+    Status: {status}<br>
+    Barcode: {barcode_id}<br><br>
+    <img src="/qr/{barcode_id}" alt="QR Code" width="200"><br>
+    <a href="/qr/{barcode_id}" download="QR-{barcode_id}.png">⬇️ Download</a><br>
+    <a href="/">➕ Register Another</a> |
+    <a href="/cylinders">📋 View Cylinders</a>
+    '''
+
 
 
 
