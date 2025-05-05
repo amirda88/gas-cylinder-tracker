@@ -10,6 +10,7 @@ import qrcode  # ⬅️ Add this at the top of your file if it's not there
 
 
 
+
 app = Flask(__name__)
 app.secret_key = 'supersecret123'  # 🛡️ Required for login session
 
@@ -19,6 +20,19 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://admin:IogWBRVd24QjJQZR9dfA
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
+
+@app.before_first_request
+def delete_duplicate_barcode():
+    try:
+        duplicate = Cylinder.query.filter_by(barcode='CYL-TE-2').first()
+        if duplicate:
+            db.session.delete(duplicate)
+            db.session.commit()
+            print("✅ Deleted duplicate barcode: CYL-TE-2")
+        else:
+            print("ℹ️ No duplicate found.")
+    except Exception as e:
+        print(f"❌ Error deleting duplicate barcode: {e}")
 
 # Define the Cylinder model
 class Cylinder(db.Model):
@@ -54,18 +68,7 @@ class User(db.Model):
     permissions = db.Column(db.String(500), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-@app.before_first_request
-def delete_duplicate_barcode():
-    try:
-        duplicate = Cylinder.query.filter_by(barcode='CYL-TE-2').first()
-        if duplicate:
-            db.session.delete(duplicate)
-            db.session.commit()
-            print("✅ Deleted duplicate barcode: CYL-TE-2")
-        else:
-            print("ℹ️ No duplicate found.")
-    except Exception as e:
-        print(f"❌ Error deleting duplicate barcode: {e}")
+
 
 # 🔐 View all users (admin only)
 @app.route('/users')
