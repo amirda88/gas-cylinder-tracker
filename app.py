@@ -56,9 +56,24 @@ class User(db.Model):
     permissions = db.Column(db.String(500), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-# ✅ Then define the function
-@app.before_first_request
-def delete_duplicate_barcode():
+with app.app_context():
+    db.create_all()
+
+    # ✅ Create admin user if not exist
+    if not User.query.filter_by(username='admin').first():
+        admin_user = User(
+            username='admin',
+            password='admin123',
+            role='admin',
+            permissions='register,dashboard,view_all,delete,log_out'
+        )
+        db.session.add(admin_user)
+        db.session.commit()
+        print('✅ Admin user created (username=admin, password=admin123)')
+    else:
+        print('✅ Admin user already exists.')
+
+    # ✅ Move this here instead of using @app.before_first_request
     try:
         duplicate = Cylinder.query.filter_by(barcode='CYL-TE-2').first()
         if duplicate:
@@ -69,6 +84,7 @@ def delete_duplicate_barcode():
             print("ℹ️ No duplicate found.")
     except Exception as e:
         print(f"❌ Error deleting duplicate barcode: {e}")
+
 
 
 # 🔐 View all users (admin only)
