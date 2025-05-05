@@ -50,8 +50,9 @@
         <td>{{ cyl.status }}</td>
 	<td>
 		<img src="{{ url_for('static', filename='qrcodes/' + cyl.barcode + '.png') }}" alt="QR Code" width="80"><br>
-		<a href="{{ url_for('serve_qr', barcode=cyl.barcode) }}" download="QR-{{ cyl.barcode }}.png">⬇️ Download</a>
+		<a href="{{ url_for('static', filename='qrcodes/' + cyl.barcode + '.png') }}" download="QR-{{ cyl.barcode }}.png">⬇️ Download</a>
 	</td>
+
 
         <td>
             <a href="/history/{{ cyl.id }}">📘 View</a>
