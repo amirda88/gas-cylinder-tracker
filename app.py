@@ -9,8 +9,6 @@ from barcode.writer import ImageWriter
 import qrcode  # ⬅️ Add this at the top of your file if it's not there
 
 
-
-
 app = Flask(__name__)
 app.secret_key = 'supersecret123'  # 🛡️ Required for login session
 
@@ -20,7 +18,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://admin:IogWBRVd24QjJQZR9dfA
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
-
 
 # Define the Cylinder model
 class Cylinder(db.Model):
@@ -55,37 +52,6 @@ class User(db.Model):
     role = db.Column(db.String(50), nullable=False)
     permissions = db.Column(db.String(500), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-with app.app_context():
-    db.create_all()
-
-    # ✅ Create admin user if not exist
-    if not User.query.filter_by(username='admin').first():
-        admin_user = User(
-            username='admin',
-            password='admin123',
-            role='admin',
-            permissions='register,dashboard,view_all,delete,log_out'
-        )
-        db.session.add(admin_user)
-        db.session.commit()
-        print('✅ Admin user created (username=admin, password=admin123)')
-    else:
-        print('✅ Admin user already exists.')
-
-    # ✅ Move this here instead of using @app.before_first_request
-    try:
-        duplicate = Cylinder.query.filter_by(barcode='CYL-TE-2').first()
-        if duplicate:
-            db.session.delete(duplicate)
-            db.session.commit()
-            print("✅ Deleted duplicate barcode: CYL-TE-2")
-        else:
-            print("ℹ️ No duplicate found.")
-    except Exception as e:
-        print(f"❌ Error deleting duplicate barcode: {e}")
-
-
 
 # 🔐 View all users (admin only)
 @app.route('/users')
@@ -465,23 +431,24 @@ def report_filter_page():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
+	if request.method == 'POST':
+		username = request.form['username']
+		password = request.form['password']
 
-        # ✅ Assign roles to each user
-        # ✅ Check user in database
-        user = User.query.filter_by(username=username, password=password).first()
-        if user:
-            session['logged_in'] = True
-            session['username'] = user.username
-            session['role'] = user.role
-            session['permissions'] = user.permissions.split(',') if user.permissions else []
-            return redirect(url_for('home'))
-        else:
-            return render_template('login.html', error='Invalid username or password.')
+		# ✅ Assign roles to each user
+		# ✅ Check user in database
+		user = User.query.filter_by(username=username, password=password).first()
+		if user:
+    			session['logged_in'] = True
+			session['username'] = user.username
+    			session['role'] = user.role
+    			session['permissions'] = user.permissions.split(',') if user.permissions else []
+    			return redirect(url_for('home'))
 
-    return render_template('login.html')
+		else:
+			return render_template('login.html', error='Invalid username or password.')
+
+	return render_template('login.html')
 
 
 @app.route('/history/<int:cylinder_id>')
