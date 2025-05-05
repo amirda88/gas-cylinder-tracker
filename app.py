@@ -433,7 +433,6 @@ def login():
         username = request.form['username']
         password = request.form['password']
 
-        # ✅ Assign roles to each user
         # ✅ Check user in database
         user = User.query.filter_by(username=username, password=password).first()
         if user:
@@ -442,9 +441,13 @@ def login():
             session['role'] = user.role
             session['permissions'] = user.permissions.split(',') if user.permissions else []
             return redirect(url_for('home'))
+
         else:
             return render_template('login.html', error='Invalid username or password.')
-        return render_template('login.html')
+
+    # ✅ This line is missing in your current code
+    return render_template('login.html')
+
 
 
 @app.route('/history/<int:cylinder_id>')
