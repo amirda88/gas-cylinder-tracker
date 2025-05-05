@@ -437,16 +437,14 @@ def login():
         # ✅ Check user in database
         user = User.query.filter_by(username=username, password=password).first()
         if user:
-                session['logged_in'] = True
+            session['logged_in'] = True
             session['username'] = user.username
-                session['role'] = user.role
-                session['permissions'] = user.permissions.split(',') if user.permissions else []
-                return redirect(url_for('home'))
-
+            session['role'] = user.role
+            session['permissions'] = user.permissions.split(',') if user.permissions else []
+            return redirect(url_for('home'))
         else:
             return render_template('login.html', error='Invalid username or password.')
-
-    return render_template('login.html')
+        return render_template('login.html')
 
 
 @app.route('/history/<int:cylinder_id>')
