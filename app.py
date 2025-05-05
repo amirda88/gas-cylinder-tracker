@@ -103,7 +103,6 @@ def edit_user(user_id):
 # ✅ Add this before your route definitions
 def has_permission(permission_name):
     return permission_name in session.get('permissions', [])
-
 @app.route('/delete_user/<int:user_id>')
 def delete_user(user_id):
     if not session.get('logged_in') or session.get('role') != 'admin':
@@ -113,7 +112,6 @@ def delete_user(user_id):
     db.session.delete(user)
     db.session.commit()
     return redirect('/users')
-
 
 
 # Home page: Registration form
@@ -431,24 +429,24 @@ def report_filter_page():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-	if request.method == 'POST':
-		username = request.form['username']
-		password = request.form['password']
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
 
-		# ✅ Assign roles to each user
-		# ✅ Check user in database
-		user = User.query.filter_by(username=username, password=password).first()
-		if user:
-    			session['logged_in'] = True
-			session['username'] = user.username
-    			session['role'] = user.role
-    			session['permissions'] = user.permissions.split(',') if user.permissions else []
-    			return redirect(url_for('home'))
+        # ✅ Assign roles to each user
+        # ✅ Check user in database
+        user = User.query.filter_by(username=username, password=password).first()
+        if user:
+                session['logged_in'] = True
+            session['username'] = user.username
+                session['role'] = user.role
+                session['permissions'] = user.permissions.split(',') if user.permissions else []
+                return redirect(url_for('home'))
 
-		else:
-			return render_template('login.html', error='Invalid username or password.')
+        else:
+            return render_template('login.html', error='Invalid username or password.')
 
-	return render_template('login.html')
+    return render_template('login.html')
 
 
 @app.route('/history/<int:cylinder_id>')
