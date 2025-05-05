@@ -8,18 +8,6 @@ import barcode
 from barcode.writer import ImageWriter
 import qrcode  # ⬅️ Add this at the top of your file if it's not there
 
-@app.before_first_request
-def delete_duplicate_barcode():
-    try:
-        duplicate = Cylinder.query.filter_by(barcode='CYL-TE-2').first()
-        if duplicate:
-            db.session.delete(duplicate)
-            db.session.commit()
-            print("✅ Deleted duplicate barcode: CYL-TE-2")
-        else:
-            print("ℹ️ No duplicate found.")
-    except Exception as e:
-        print(f"❌ Error deleting duplicate barcode: {e}")
 
 
 app = Flask(__name__)
@@ -65,6 +53,19 @@ class User(db.Model):
     role = db.Column(db.String(50), nullable=False)
     permissions = db.Column(db.String(500), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+@app.before_first_request
+def delete_duplicate_barcode():
+    try:
+        duplicate = Cylinder.query.filter_by(barcode='CYL-TE-2').first()
+        if duplicate:
+            db.session.delete(duplicate)
+            db.session.commit()
+            print("✅ Deleted duplicate barcode: CYL-TE-2")
+        else:
+            print("ℹ️ No duplicate found.")
+    except Exception as e:
+        print(f"❌ Error deleting duplicate barcode: {e}")
 
 # 🔐 View all users (admin only)
 @app.route('/users')
