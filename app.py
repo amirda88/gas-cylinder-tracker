@@ -21,29 +21,29 @@ db = SQLAlchemy(app)
 
 # Define the Cylinder model
 class Cylinder(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    cylinder_type = db.Column(db.String(100))
-    gas_type = db.Column(db.String(100))
-    size = db.Column(db.String(50))
-    status = db.Column(db.String(10))
-    barcode = db.Column(db.String(50), unique=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime)
+	id = db.Column(db.Integer, primary_key=True)
+	cylinder_type = db.Column(db.String(100))
+	gas_type = db.Column(db.String(100))
+	size = db.Column(db.String(50))
+	status = db.Column(db.String(10))
+	barcode = db.Column(db.String(50), unique=True)
+	created_at = db.Column(db.DateTime, default=datetime.utcnow)
+	updated_at = db.Column(db.DateTime)
 
 # Track status change history
 class StatusHistory(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    cylinder_id = db.Column(db.Integer, db.ForeignKey('cylinder.id'))
-    old_status = db.Column(db.String(10))
-    new_status = db.Column(db.String(10))
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+	id = db.Column(db.Integer, primary_key=True)
+	cylinder_id = db.Column(db.Integer, db.ForeignKey('cylinder.id'))
+	old_status = db.Column(db.String(10))
+	new_status = db.Column(db.String(10))
+	timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
 class MovementLog(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    cylinder_id = db.Column(db.Integer, db.ForeignKey('cylinder.id'))
-    action = db.Column(db.String(10))  # "IN" or "OUT"
-    note = db.Column(db.String(200))
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+	id = db.Column(db.Integer, primary_key=True)
+	cylinder_id = db.Column(db.Integer, db.ForeignKey('cylinder.id'))
+	action = db.Column(db.String(10))  # "IN" or "OUT"
+	note = db.Column(db.String(200))
+	timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -428,19 +428,18 @@ def login():
 		username = request.form['username']
 		password = request.form['password']
 
-		# ✅ Assign roles to each user
 		# ✅ Check user in database
 		user = User.query.filter_by(username=username, password=password).first()
 		if user:
-    			session['logged_in'] = True
+			session['logged_in'] = True
 			session['username'] = user.username
-    			session['role'] = user.role
-    			session['permissions'] = user.permissions.split(',') if user.permissions else []
-    			return redirect(url_for('home'))
-
+			session['role'] = user.role
+			session['permissions'] = user.permissions.split(',') if user.permissions else []
+			return redirect(url_for('home'))
 		else:
 			return render_template('login.html', error='Invalid username or password.')
-
+	
+	# GET method
 	return render_template('login.html')
 
 
