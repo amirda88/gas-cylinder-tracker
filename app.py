@@ -103,6 +103,7 @@ def edit_user(user_id):
 # ✅ Add this before your route definitions
 def has_permission(permission_name):
     return permission_name in session.get('permissions', [])
+
 @app.route('/delete_user/<int:user_id>')
 def delete_user(user_id):
     if not session.get('logged_in') or session.get('role') != 'admin':
@@ -112,6 +113,7 @@ def delete_user(user_id):
     db.session.delete(user)
     db.session.commit()
     return redirect('/users')
+
 
 
 # Home page: Registration form
@@ -139,16 +141,7 @@ def register():
     next_number = len(existing_barcodes) + 1
     barcode_id = f"CYL-{prefix}-{next_number}"
 
-    # Generate and save QR code image to /static/qrcodes
-    import os
-    import qrcode
 
-    output_folder = os.path.join('static', 'qrcodes')
-    os.makedirs(output_folder, exist_ok=True)
-    qr_path = os.path.join(output_folder, f"{barcode_id}.png")
-
-    qr = qrcode.make(barcode_id)
-    qr.save(qr_path)
 
     # Save cylinder to database
     new_cylinder = Cylinder(
@@ -162,16 +155,18 @@ def register():
     db.session.commit()
 
     # Return success message
-    return f'''
-    ✅ Cylinder saved to database!<br>
-    Name: {gas_type}<br>
-    Size: {size}<br>
-    Status: {status}<br>
-    Barcode: {barcode_id}<br><br>
-    <img src="/static/qrcodes/{barcode_id}.png" alt="QR Code" width="200"><br>
-    <a href="/">➕ Register Another</a> |
-    <a href="/cylinders">📋 View Cylinders</a>
-    '''
+return f'''
+✅ Cylinder saved to database!<br>
+Name: {gas_type}<br>
+Size: {size}<br>
+Status: {status}<br>
+Barcode: {barcode_id}<br><br>
+<img src="/qr/{barcode_id}" alt="QR Code" width="200"><br>
+<a href="/qr/{barcode_id}" download="QR-{barcode_id}.png">⬇️ Download</a><br>
+<a href="/">➕ Register Another</a> |
+<a href="/cylinders">📋 View Cylinders</a>
+'''
+
 
 
 # app.py
@@ -429,25 +424,24 @@ def report_filter_page():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
+	if request.method == 'POST':
+		username = request.form['username']
+		password = request.form['password']
 
-        # ✅ Check user in database
-        user = User.query.filter_by(username=username, password=password).first()
-        if user:
-            session['logged_in'] = True
-            session['username'] = user.username
-            session['role'] = user.role
-            session['permissions'] = user.permissions.split(',') if user.permissions else []
-            return redirect(url_for('home'))
+		# ✅ Assign roles to each user
+		# ✅ Check user in database
+		user = User.query.filter_by(username=username, password=password).first()
+		if user:
+    			session['logged_in'] = True
+			session['username'] = user.username
+    			session['role'] = user.role
+    			session['permissions'] = user.permissions.split(',') if user.permissions else []
+    			return redirect(url_for('home'))
 
-        else:
-            return render_template('login.html', error='Invalid username or password.')
+		else:
+			return render_template('login.html', error='Invalid username or password.')
 
-    # ✅ This line is missing in your current code
-    return render_template('login.html')
-
+	return render_template('login.html')
 
 
 @app.route('/history/<int:cylinder_id>')
