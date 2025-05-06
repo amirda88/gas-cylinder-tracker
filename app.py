@@ -23,15 +23,15 @@ from sqlalchemy import LargeBinary
 
 # Define the Cylinder model
 class Cylinder(db.Model):
-	id = db.Column(db.Integer, primary_key=True)
-	cylinder_type = db.Column(db.String(100))
-	gas_type = db.Column(db.String(100))
-	size = db.Column(db.String(50))
-	status = db.Column(db.String(10))
-	barcode = db.Column(db.String(50), unique=True)
-	qr_code = db.Column(LargeBinary)  # 🆕 Add this line
-	created_at = db.Column(db.DateTime, default=datetime.utcnow)
-	updated_at = db.Column(db.DateTime)
+    id = db.Column(db.Integer, primary_key=True)
+    cylinder_type = db.Column(db.String(100))
+    gas_type = db.Column(db.String(100))
+    size = db.Column(db.String(50))
+    status = db.Column(db.String(10))
+    barcode = db.Column(db.String(50), unique=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime)
+
 
 # Track status change history
 class StatusHistory(db.Model):
@@ -55,11 +55,6 @@ class User(db.Model):
     role = db.Column(db.String(50), nullable=False)
     permissions = db.Column(db.String(500), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-@app.route('/qr/<barcode>')
-def serve_qr_code(barcode):
-    cylinder = Cylinder.query.filter_by(barcode=barcode).first_or_404()
-    return Response(cylinder.qr_code, mimetype='image/png')
 
 # 🔐 View all users (admin only)
 @app.route('/users')
@@ -133,8 +128,8 @@ def home():
 
 from io import BytesIO
 import qrcode
+import os
 
-# Save form data to database
 @app.route('/register', methods=['POST'])
 def register():
     if not session.get('logged_in'):
@@ -152,33 +147,35 @@ def register():
     next_number = len(existing_barcodes) + 1
     barcode_id = f"CYL-{prefix}-{next_number}"
 
-    # ✅ Generate QR code and store it in memory
+    # ✅ Generate QR code and save as PNG to static/qrcodes
     qr_img = qrcode.make(barcode_id)
-    buffer = BytesIO()
-    qr_img.save(buffer, format="PNG")
-    qr_bytes = buffer.getvalue()
+    qr_path = f"static/qrcodes/{barcode_id}.png"
 
-    # ✅ Save cylinder and QR code to database
+    # Make sure the directory exists
+    os.makedirs(os.path.dirname(qr_path), exist_ok=True)
+
+    qr_img.save(qr_path)
+
+    # ✅ Save cylinder to database
     new_cylinder = Cylinder(
         cylinder_type="Simple",
         gas_type=gas_type,
         size=size,
         status=status,
-        barcode=barcode_id,
-        qr_code=qr_bytes  # this assumes you already added qr_code = db.Column(db.LargeBinary)
+        barcode=barcode_id
     )
     db.session.add(new_cylinder)
     db.session.commit()
 
-    # Return success message
+    # ✅ Show success message
     return f'''
     ✅ Cylinder saved to database!<br>
     Name: {gas_type}<br>
     Size: {size}<br>
     Status: {status}<br>
     Barcode: {barcode_id}<br><br>
-    <img src="/qr/{barcode_id}" alt="QR Code" width="200"><br>
-    <a href="/qr/{barcode_id}" download="QR-{barcode_id}.png">⬇️ Download</a><br>
+    <img src="/static/qrcodes/{barcode_id}.png" alt="QR Code" width="200"><br>
+    <a href="/static/qrcodes/{barcode_id}.png" download="QR-{barcode_id}.png">⬇️ Download</a><br>
     <a href="/">➕ Register Another</a> |
     <a href="/cylinders">📋 View Cylinders</a>
     '''
