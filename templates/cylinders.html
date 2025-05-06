@@ -39,7 +39,7 @@
         <th>Movement</th>
         <th>Log Out</th>
         {% if session.get('role') == 'admin' %}
-            <th>Delete</th>  <!-- Add Delete column header if Admin -->
+            <th>Delete</th>
         {% endif %}
     </tr>
 
@@ -48,12 +48,10 @@
         <td>{{ cyl.gas_type }}</td>
         <td>{{ cyl.size }}</td>
         <td>{{ cyl.status }}</td>
-	<td>
-		<img src="{{ url_for('serve_qr_code', barcode=cyl.barcode) }}" alt="QR Code" width="80"><br>
-		<a href="{{ url_for('serve_qr_code', barcode=cyl.barcode) }}" download="QR-{{ cyl.barcode }}.png">⬇️ Download</a>
-	</td>
-
-
+        <td>
+            <img src="{{ url_for('serve_qr_code', barcode=cyl.barcode) }}" alt="QR Code" width="80"><br>
+            <a href="{{ url_for('serve_qr_code', barcode=cyl.barcode) }}" download="QR-{{ cyl.barcode }}.png">⬇️ Download</a>
+        </td>
         <td>
             <a href="/history/{{ cyl.id }}">📘 View</a>
         </td>
@@ -63,7 +61,6 @@
         <td>
             <a href="/log_out/{{ cyl.id }}">🔁 Log OUT</a>
         </td>
-        
         {% if session.get('role') == 'admin' %}
         <td>
             <a href="/delete_cylinder/{{ cyl.id }}" onclick="return confirm('Are you sure you want to delete this cylinder?')">🗑️ Delete</a>
@@ -71,8 +68,7 @@
         {% endif %}
     </tr>
     {% endfor %}
-</table>
-
+    </table>
 
     <br>
     <div style="text-align: center;">
