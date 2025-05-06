@@ -522,14 +522,7 @@ with app.app_context():
         print('✅ Admin user created (username=admin, password=admin123)')
     else:
         print('✅ Admin user already exists.')
-from alembic import command
-from alembic.config import Config
 
-@app.cli.command("make_migration")
-def make_migration():
-    """Generates Alembic migration for QR code column."""
-    config = Config("alembic.ini")
-    command.revision(config, message="Add qr_code column to Cylinder", autogenerate=True)
 
 
 if __name__ == '__main__':
