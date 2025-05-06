@@ -56,6 +56,11 @@ class User(db.Model):
     permissions = db.Column(db.String(500), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+@app.route('/qr/<barcode>')
+def serve_qr_code(barcode):
+    cylinder = Cylinder.query.filter_by(barcode=barcode).first_or_404()
+    return Response(cylinder.qr_code, mimetype='image/png')
+
 # 🔐 View all users (admin only)
 @app.route('/users')
 def view_users():
@@ -126,7 +131,9 @@ def home():
         return redirect('/login')
     return render_template('register.html')
 
-# Save form data to database
+from io import BytesIO
+import qrcode
+
 # Save form data to database
 @app.route('/register', methods=['POST'])
 def register():
@@ -145,18 +152,25 @@ def register():
     next_number = len(existing_barcodes) + 1
     barcode_id = f"CYL-{prefix}-{next_number}"
 
-    # Save cylinder to database
+    # ✅ Generate QR code and store it in memory
+    qr_img = qrcode.make(barcode_id)
+    buffer = BytesIO()
+    qr_img.save(buffer, format="PNG")
+    qr_bytes = buffer.getvalue()
+
+    # ✅ Save cylinder and QR code to database
     new_cylinder = Cylinder(
         cylinder_type="Simple",
         gas_type=gas_type,
         size=size,
         status=status,
-        barcode=barcode_id
+        barcode=barcode_id,
+        qr_code=qr_bytes  # this assumes you already added qr_code = db.Column(db.LargeBinary)
     )
     db.session.add(new_cylinder)
     db.session.commit()
 
-    # ✅ Return response (correctly indented)
+    # Return success message
     return f'''
     ✅ Cylinder saved to database!<br>
     Name: {gas_type}<br>
@@ -168,8 +182,6 @@ def register():
     <a href="/">➕ Register Another</a> |
     <a href="/cylinders">📋 View Cylinders</a>
     '''
-
-
 
 
 # app.py
