@@ -147,14 +147,12 @@ def register():
     next_number = len(existing_barcodes) + 1
     barcode_id = f"CYL-{prefix}-{next_number}"
 
-    # ✅ Generate QR code and save as PNG to static/qrcodes
-    qr_img = qrcode.make(barcode_id)
-    qr_path = f"static/qrcodes/{barcode_id}.png"
+	# ✅ Generate QR code and store it in memory
+qr_img = qrcode.make(barcode_id)
+buffer = BytesIO()
+qr_img.save(buffer, format="PNG")
+qr_bytes = buffer.getvalue()
 
-    # Make sure the directory exists
-    os.makedirs(os.path.dirname(qr_path), exist_ok=True)
-
-    qr_img.save(qr_path)
 
     # ✅ Save cylinder to database
     new_cylinder = Cylinder(
@@ -163,6 +161,7 @@ def register():
         size=size,
         status=status,
         barcode=barcode_id
+	qr_code=qr_bytes
     )
     db.session.add(new_cylinder)
     db.session.commit()
