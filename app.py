@@ -141,18 +141,17 @@ def register():
     size = request.form['size']
     status = request.form['status']
 
-    # Generate a unique barcode ID (e.g., CYL-PR-1, CYL-PR-2, etc.)
+    # Generate a unique barcode ID
     prefix = gas_type[:2]
     existing_barcodes = Cylinder.query.filter(Cylinder.barcode.like(f"CYL-{prefix}-%")).all()
     next_number = len(existing_barcodes) + 1
     barcode_id = f"CYL-{prefix}-{next_number}"
 
-	# ✅ Generate QR code and store it in memory
-qr_img = qrcode.make(barcode_id)
-buffer = BytesIO()
-qr_img.save(buffer, format="PNG")
-qr_bytes = buffer.getvalue()
-
+    # ✅ Generate and save QR code as PNG
+    qr_img = qrcode.make(barcode_id)
+    qr_path = f"static/qrcodes/{barcode_id}.png"
+    os.makedirs(os.path.dirname(qr_path), exist_ok=True)
+    qr_img.save(qr_path)
 
     # ✅ Save cylinder to database
     new_cylinder = Cylinder(
@@ -161,12 +160,10 @@ qr_bytes = buffer.getvalue()
         size=size,
         status=status,
         barcode=barcode_id
-	qr_code=qr_bytes
     )
     db.session.add(new_cylinder)
     db.session.commit()
 
-    # ✅ Show success message
     return f'''
     ✅ Cylinder saved to database!<br>
     Name: {gas_type}<br>
@@ -178,7 +175,6 @@ qr_bytes = buffer.getvalue()
     <a href="/">➕ Register Another</a> |
     <a href="/cylinders">📋 View Cylinders</a>
     '''
-
 
 # app.py
 
