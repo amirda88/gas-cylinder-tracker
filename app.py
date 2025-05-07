@@ -149,13 +149,14 @@ def register():
 
 
     # ✅ Save cylinder to database
-    new_cylinder = Cylinder(
-        cylinder_type="Simple",
-        gas_type=gas_type,
-        size=size,
-        status=status,
-        barcode=barcode_id
-    )
+new_cylinder = Cylinder(
+    cylinder_type="Simple",
+    gas_type=gas_type,
+    size=size,
+    status=status,
+    barcode=barcode_id,
+    qr_code=qr_bytes  # ✅ Save QR image bytes
+)
     db.session.add(new_cylinder)
     db.session.commit()
 
