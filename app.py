@@ -322,6 +322,14 @@ def dashboard():
         returned_count=returned_count
     )
 
+from flask import Response
+
+@app.route('/qr/<barcode>')
+def serve_qr_code(barcode):
+    cylinder = Cylinder.query.filter_by(barcode=barcode).first_or_404()
+    if cylinder.qr_code:
+        return Response(cylinder.qr_code, mimetype='image/png')
+    return "❌ QR code not found", 404
 
 
 
