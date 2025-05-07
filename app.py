@@ -21,7 +21,6 @@ db = SQLAlchemy(app)
 
 from sqlalchemy import LargeBinary
 
-# Define the Cylinder model
 class Cylinder(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     cylinder_type = db.Column(db.String(100))
@@ -29,6 +28,7 @@ class Cylinder(db.Model):
     size = db.Column(db.String(50))
     status = db.Column(db.String(10))
     barcode = db.Column(db.String(50), unique=True)
+    qr_code = db.Column(LargeBinary)  # ✅ Add this line
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime)
 
@@ -502,6 +502,7 @@ def log_out_cylinder(cylinder_id):
 
 
 with app.app_context():
+    db.drop_all()
     db.create_all()
 
     # ✅ Create admin user if not exist
