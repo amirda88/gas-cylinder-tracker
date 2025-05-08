@@ -313,7 +313,8 @@ def dashboard():
     # Other counters
     total_count = Cylinder.query.count()
     available_count = Cylinder.query.filter(~Cylinder.status.in_(['Returned', 'On Service'])).count()
-    returned_count = Cylinder.query.filter(Cylinder.status == "On Service").count()  # 'On Service' replaces 'Returned'
+    returned_count = Cylinder.query.filter(Cylinder.status == "Returned").count()
+
 
     return render_template(
         'dashboard.html',
