@@ -273,7 +273,6 @@ def update_status():
                 return f"❌ Cylinder with barcode <b>{barcode_input}</b> not found.<br><a href='/update'>Try Again</a>"
 
     return render_template('update.html', cylinder=cylinder)
-
 @app.route('/dashboard')
 def dashboard():
     if not session.get('logged_in'):
@@ -281,17 +280,18 @@ def dashboard():
     if not has_permission('dashboard'):
         return "⛔ You don't have permission to view dashboard.", 403
 
+    # 3A – Pie chart: Do NOT include 'On Service'
     statuses = ['Full', '75%', '50%', '25%', 'Empty']
     labels, counts = [], []
-
     for status in statuses:
         count = Cylinder.query.filter(Cylinder.status == status).count()
         labels.append(status)
         counts.append(count)
 
+    # 3B – Registered Over Time: exclude both 'Returned' and 'On Service'
     from collections import defaultdict
     daily_counts = defaultdict(int)
-    for cyl in Cylinder.query.filter(Cylinder.status != 'Returned').all():
+    for cyl in Cylinder.query.filter(Cylinder.status.notin_(['Returned', 'On Service'])).all():
         if cyl.created_at:
             date_str = cyl.created_at.strftime('%Y-%m-%d')
             daily_counts[date_str] += 1
@@ -300,17 +300,19 @@ def dashboard():
     bar_labels = sorted_dates
     bar_values = [daily_counts[date] for date in sorted_dates]
 
+    # 3C – Gas type count: exclude both 'Returned' and 'On Service'
     from sqlalchemy import func
     gas_data = db.session.query(
         Cylinder.gas_type, func.count(Cylinder.id)
-    ).filter(Cylinder.status != 'Returned').group_by(Cylinder.gas_type).all()
+    ).filter(Cylinder.status.notin_(['Returned', 'On Service'])).group_by(Cylinder.gas_type).all()
 
     gas_labels = [g[0] for g in gas_data]
     gas_counts = [g[1] for g in gas_data]
 
+    # Other counters
     total_count = Cylinder.query.count()
-    available_count = Cylinder.query.filter(Cylinder.status != "Returned").count()
-    returned_count = Cylinder.query.filter(Cylinder.status == "Returned").count()
+    available_count = Cylinder.query.filter(Cylinder.status.notin_(['Returned', 'On Service'])).count()
+    returned_count = Cylinder.query.filter(Cylinder.status == "On Service").count()  # 'On Service' replaces 'Returned'
 
     return render_template(
         'dashboard.html',
@@ -324,8 +326,6 @@ def dashboard():
         available_count=available_count,
         returned_count=returned_count
     )
-
-from flask import Response
 
 @app.route('/qr/<barcode>')
 def serve_qr_code(barcode):
