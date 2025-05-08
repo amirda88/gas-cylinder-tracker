@@ -284,14 +284,15 @@ def dashboard():
     statuses = ['Full', '75%', '50%', '25%', 'Empty']
     labels, counts = [], []
     for status in statuses:
-        count = Cylinder.query.filter(Cylinder.status == status).count()
-        labels.append(status)
-        counts.append(count)
+        count = Cylinder.query.filter(
+            Cylinder.status == status,
+            Cylinder.status != 'On Service'
+        ).count()
 
     # 3B – Registered Over Time: exclude both 'Returned' and 'On Service'
     from collections import defaultdict
     daily_counts = defaultdict(int)
-    for cyl in Cylinder.query.filter(Cylinder.status.notin_(['Returned', 'On Service'])).all():
+    for cyl in Cylinder.query.filter(~Cylinder.status.in_(['Returned', 'On Service'])).all():
         if cyl.created_at:
             date_str = cyl.created_at.strftime('%Y-%m-%d')
             daily_counts[date_str] += 1
@@ -304,14 +305,14 @@ def dashboard():
     from sqlalchemy import func
     gas_data = db.session.query(
         Cylinder.gas_type, func.count(Cylinder.id)
-    ).filter(Cylinder.status.notin_(['Returned', 'On Service'])).group_by(Cylinder.gas_type).all()
+    ).filter(~Cylinder.status.in_(['Returned', 'On Service'])).group_by(Cylinder.gas_type).all()
 
     gas_labels = [g[0] for g in gas_data]
     gas_counts = [g[1] for g in gas_data]
 
     # Other counters
     total_count = Cylinder.query.count()
-    available_count = Cylinder.query.filter(Cylinder.status.notin_(['Returned', 'On Service'])).count()
+    available_count = Cylinder.query.filter(~Cylinder.status.in_(['Returned', 'On Service'])).count()
     returned_count = Cylinder.query.filter(Cylinder.status == "On Service").count()  # 'On Service' replaces 'Returned'
 
     return render_template(
