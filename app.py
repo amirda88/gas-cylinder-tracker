@@ -280,53 +280,37 @@ def dashboard():
     if not has_permission('dashboard'):
         return "⛔ You don't have permission to view dashboard.", 403
 
-    # 3A – Pie chart: Do NOT include 'On Service'
-    statuses = ['Full', '75%', '50%', '25%', 'Empty']
+    selected_gas = request.args.get('gas_type')  # for filtering
+    gas_types = [row[0] for row in db.session.query(Cylinder.gas_type).distinct().all()]
+
+    query = Cylinder.query
+    if selected_gas:
+        query = query.filter(Cylinder.gas_type == selected_gas)
+
+    statuses = ['Full', '75%', '50%', '25%', 'Empty', 'On Service']
     labels, counts = [], []
+
     for status in statuses:
-        count = Cylinder.query.filter(
-            Cylinder.status == status,
-            Cylinder.status != 'On Service'
-        ).count()
+        count = query.filter(Cylinder.status == status).count()
+        labels.append(status)
+        counts.append(count)
 
-    # 3B – Registered Over Time: exclude both 'Returned' and 'On Service'
-    from collections import defaultdict
-    daily_counts = defaultdict(int)
-    for cyl in Cylinder.query.filter(~Cylinder.status.in_(['Returned', 'On Service'])).all():
-        if cyl.created_at:
-            date_str = cyl.created_at.strftime('%Y-%m-%d')
-            daily_counts[date_str] += 1
-
-    sorted_dates = sorted(daily_counts.keys())
-    bar_labels = sorted_dates
-    bar_values = [daily_counts[date] for date in sorted_dates]
-
-    # 3C – Gas type count: exclude both 'Returned' and 'On Service'
     from sqlalchemy import func
     gas_data = db.session.query(
         Cylinder.gas_type, func.count(Cylinder.id)
-    ).filter(~Cylinder.status.in_(['Returned', 'On Service'])).group_by(Cylinder.gas_type).all()
+    ).group_by(Cylinder.gas_type).all()
 
     gas_labels = [g[0] for g in gas_data]
     gas_counts = [g[1] for g in gas_data]
-
-    # Other counters
-    total_count = Cylinder.query.count()
-    available_count = Cylinder.query.filter(~Cylinder.status.in_(['Returned', 'On Service'])).count()
-    returned_count = Cylinder.query.filter(Cylinder.status == "Returned").count()
-
 
     return render_template(
         'dashboard.html',
         labels=labels,
         counts=counts,
-        bar_labels=bar_labels,
-        bar_values=bar_values,
         gas_labels=gas_labels,
         gas_counts=gas_counts,
-        total_count=total_count,
-        available_count=available_count,
-        returned_count=returned_count
+        gas_types=gas_types,
+        selected_gas=selected_gas
     )
 
 @app.route('/qr/<barcode>')
