@@ -495,18 +495,18 @@ def log_out_cylinder(cylinder_id):
     log = MovementLog(
         cylinder_id=cylinder.id,
         action="OUT",
-        note="Returned to supplier"
+        note="Sent for service"
     )
     db.session.add(log)
 
     # Update cylinder status
-    cylinder.status = "Returned"
+    cylinder.status = "On Service"
     cylinder.updated_at = datetime.utcnow()
 
     db.session.commit()
 
     return f'''
-        ✅ Cylinder <b>{cylinder.barcode}</b> has been marked as Returned.<br><br>
+        ✅ Cylinder <b>{cylinder.barcode}</b> has been marked as On Service.<br><br>
         <a href="/cylinders">📋 Back to All Cylinders</a>
     '''
 
