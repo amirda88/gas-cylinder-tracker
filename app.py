@@ -273,6 +273,7 @@ def update_status():
                 return f"❌ Cylinder with barcode <b>{barcode_input}</b> not found.<br><a href='/update'>Try Again</a>"
 
     return render_template('update.html', cylinder=cylinder)
+
 @app.route('/dashboard')
 def dashboard():
     if not session.get('logged_in'):
@@ -280,37 +281,39 @@ def dashboard():
     if not has_permission('dashboard'):
         return "⛔ You don't have permission to view dashboard.", 403
 
-    selected_gas = request.args.get('gas_type')  # for filtering
+    # Get distinct gas types
     gas_types = [row[0] for row in db.session.query(Cylinder.gas_type).distinct().all()]
+    selected_gas = request.args.get('gas_type')
 
-    query = Cylinder.query
+    # Build base query
+    base_query = Cylinder.query
     if selected_gas:
-        query = query.filter(Cylinder.gas_type == selected_gas)
+        base_query = base_query.filter(Cylinder.gas_type == selected_gas)
 
-    statuses = ['Full', '75%', '50%', '25%', 'Empty', 'On Service']
-    labels, counts = [], []
-
-    for status in statuses:
-        count = query.filter(Cylinder.status == status).count()
+    # 1. Pie Chart - Status Overview (include all except 'Returned')
+    status_list = ['Full', '75%', '50%', '25%', 'Empty', 'On Service']
+    labels = []
+    counts = []
+    for status in status_list:
+        count = base_query.filter(Cylinder.status == status).count()
         labels.append(status)
         counts.append(count)
 
+    # 2. Bar Chart - Count by Gas Type (all cylinders except 'Returned')
     from sqlalchemy import func
-    gas_data = db.session.query(
-        Cylinder.gas_type, func.count(Cylinder.id)
-    ).group_by(Cylinder.gas_type).all()
-
+    gas_query = Cylinder.query.filter(Cylinder.status != 'Returned')
+    gas_data = gas_query.with_entities(Cylinder.gas_type, func.count(Cylinder.id)).group_by(Cylinder.gas_type).all()
     gas_labels = [g[0] for g in gas_data]
     gas_counts = [g[1] for g in gas_data]
 
     return render_template(
         'dashboard.html',
+        gas_types=gas_types,
+        selected_gas=selected_gas,
         labels=labels,
         counts=counts,
         gas_labels=gas_labels,
-        gas_counts=gas_counts,
-        gas_types=gas_types,
-        selected_gas=selected_gas
+        gas_counts=gas_counts
     )
 
 @app.route('/qr/<barcode>')
