@@ -410,8 +410,8 @@ def generate_pdf():
                 pdf.drawString(x_positions[i], y, header)
             y -= 15
 
-        created = cyl.created_at.strftime("%Y-%m-%d") if cyl.created_at else ""
-        updated = cyl.updated_at.strftime("%Y-%m-%d") if cyl.updated_at else ""
+	created = cyl.created_at.astimezone(houston_tz).strftime("%Y-%m-%d") if cyl.created_at else ""
+	updated = cyl.updated_at.astimezone(houston_tz).strftime("%Y-%m-%d") if cyl.updated_at else ""
         values = [cyl.id, cyl.cylinder_type, cyl.gas_type, cyl.size, cyl.status, created, updated]
         for i, val in enumerate(values):
             pdf.drawString(x_positions[i], y, str(val))
