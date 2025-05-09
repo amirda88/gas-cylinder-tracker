@@ -459,6 +459,11 @@ def view_history(cylinder_id):
     cylinder = Cylinder.query.get_or_404(cylinder_id)
     history = StatusHistory.query.filter_by(cylinder_id=cylinder.id).order_by(StatusHistory.timestamp.desc()).all()
 
+    # 🔁 Convert timestamps to Houston time
+    for h in history:
+        if h.timestamp:
+            h.timestamp = h.timestamp.astimezone(houston_tz)
+
     return render_template('history.html', cylinder=cylinder, history=history)
 
 
