@@ -36,18 +36,18 @@ class Cylinder(db.Model):
 
 # Track status change history
 class StatusHistory(db.Model):
-	id = db.Column(db.Integer, primary_key=True)
-	cylinder_id = db.Column(db.Integer, db.ForeignKey('cylinder.id'))
-	old_status = db.Column(db.String(10))
-	new_status = db.Column(db.String(10))
-	timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    id = db.Column(db.Integer, primary_key=True)
+    cylinder_id = db.Column(db.Integer, db.ForeignKey('cylinder.id'))
+    old_status = db.Column(db.String(10))
+    new_status = db.Column(db.String(10))
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
 class MovementLog(db.Model):
-	id = db.Column(db.Integer, primary_key=True)
-	cylinder_id = db.Column(db.Integer, db.ForeignKey('cylinder.id'))
-	action = db.Column(db.String(10))  # "IN" or "OUT"
-	note = db.Column(db.String(200))
-	timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    id = db.Column(db.Integer, primary_key=True)
+    cylinder_id = db.Column(db.Integer, db.ForeignKey('cylinder.id'))
+    action = db.Column(db.String(10))  # "IN" or "OUT"
+    note = db.Column(db.String(200))
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -410,8 +410,8 @@ def generate_pdf():
                 pdf.drawString(x_positions[i], y, header)
             y -= 15
 
-	created = cyl.created_at.astimezone(houston_tz).strftime("%Y-%m-%d") if cyl.created_at else ""
-	updated = cyl.updated_at.astimezone(houston_tz).strftime("%Y-%m-%d") if cyl.updated_at else ""
+    created = cyl.created_at.astimezone(houston_tz).strftime("%Y-%m-%d") if cyl.created_at else ""
+    updated = cyl.updated_at.astimezone(houston_tz).strftime("%Y-%m-%d") if cyl.updated_at else ""
         values = [cyl.id, cyl.cylinder_type, cyl.gas_type, cyl.size, cyl.status, created, updated]
         for i, val in enumerate(values):
             pdf.drawString(x_positions[i], y, str(val))
@@ -432,23 +432,23 @@ def report_filter_page():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-	if request.method == 'POST':
-		username = request.form['username']
-		password = request.form['password']
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
 
-		# ✅ Check user in database
-		user = User.query.filter_by(username=username, password=password).first()
-		if user:
-			session['logged_in'] = True
-			session['username'] = user.username
-			session['role'] = user.role
-			session['permissions'] = user.permissions.split(',') if user.permissions else []
-			return redirect(url_for('home'))
-		else:
-			return render_template('login.html', error='Invalid username or password.')
-	
-	# GET method
-	return render_template('login.html')
+        # ✅ Check user in database
+        user = User.query.filter_by(username=username, password=password).first()
+        if user:
+            session['logged_in'] = True
+            session['username'] = user.username
+            session['role'] = user.role
+            session['permissions'] = user.permissions.split(',') if user.permissions else []
+            return redirect(url_for('home'))
+        else:
+            return render_template('login.html', error='Invalid username or password.')
+    
+    # GET method
+    return render_template('login.html')
 
 
 @app.route('/history/<int:cylinder_id>')
