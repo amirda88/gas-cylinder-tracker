@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+houston_tz = pytz.timezone("America/Chicago")
 
 # Third-party libraries
 from flask import Flask, render_template, request, redirect, session, url_for
@@ -334,7 +335,7 @@ def export_csv():
     # Create CSV content
     csv_data = "ID,Cylinder Type,Gas Type,Size,Status,Barcode,Registered On,Last Updated\n"
     for cyl in cylinders:
-        created = cyl.created_at.strftime("%Y-%m-%d %H:%M") if cyl.created_at else ""
+        created = cyl.created_at.astimezone(houston_tz).strftime("%Y-%m-%d %H:%M") if cyl.created_at else ""
         updated = cyl.updated_at.strftime("%Y-%m-%d %H:%M") if cyl.updated_at else ""
         csv_data += f"{cyl.id},{cyl.cylinder_type},{cyl.gas_type},{cyl.size},{cyl.status},{cyl.barcode},{created},{updated}\n"
 
