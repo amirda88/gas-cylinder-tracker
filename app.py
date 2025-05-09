@@ -475,7 +475,13 @@ def view_movement(cylinder_id):
     cylinder = Cylinder.query.get_or_404(cylinder_id)
     movements = MovementLog.query.filter_by(cylinder_id=cylinder.id).order_by(MovementLog.timestamp.desc()).all()
 
+    # 🔁 Convert timestamps to Houston time
+    for m in movements:
+        if m.timestamp:
+            m.timestamp = m.timestamp.astimezone(houston_tz)
+
     return render_template('movement.html', cylinder=cylinder, movements=movements)
+
 
 @app.route('/log_out/<int:cylinder_id>')
 def log_out_cylinder(cylinder_id):
