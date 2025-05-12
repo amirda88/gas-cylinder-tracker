@@ -387,7 +387,9 @@ def generate_pdf():
 
     pdf.setFont("Helvetica", 12)
     pdf.drawCentredString(width / 2, height - 270, f"Total Cylinders: {len(cylinders)}")
-    pdf.drawCentredString(width / 2, height - 290, datetime.now().strftime("%Y-%m-%d %H:%M"))
+    houston_time = datetime.now(houston_tz)
+    pdf.drawCentredString(width / 2, height - 290, houston_time.strftime("%Y-%m-%d %H:%M"))
+
 
     pdf.showPage()  # move to next page
 
