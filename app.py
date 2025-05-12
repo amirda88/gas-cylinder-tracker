@@ -415,7 +415,7 @@ def generate_pdf():
     values = [cyl.id, cyl.cylinder_type, cyl.gas_type, cyl.size, cyl.status, created, updated]
     for i, val in enumerate(values):
             pdf.drawString(x_positions[i], y, str(val))
-        y -= 12
+    y -= 12
 
     pdf.save()
     buffer.seek(0)
