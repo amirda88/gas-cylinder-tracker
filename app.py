@@ -1,6 +1,6 @@
 import os
-from datetime import datetime
-houston_tz = pytz.timezone("America/Chicago")
+from zoneinfo import ZoneInfo
+houston_tz = ZoneInfo("America/Chicago")
 
 # Third-party libraries
 from flask import Flask, render_template, request, redirect, session, url_for
