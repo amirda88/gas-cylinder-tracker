@@ -451,6 +451,8 @@ def login():
     return render_template('login.html')
 
 
+from zoneinfo import ZoneInfo
+
 @app.route('/history/<int:cylinder_id>')
 def view_history(cylinder_id):
     if not session.get('logged_in'):
@@ -459,12 +461,12 @@ def view_history(cylinder_id):
     cylinder = Cylinder.query.get_or_404(cylinder_id)
     history = StatusHistory.query.filter_by(cylinder_id=cylinder.id).order_by(StatusHistory.timestamp.desc()).all()
 
-    # ⏰ Convert to Houston local time
-    houston_tz = timezone('America/Chicago')
+    # ✅ Convert timestamps to Houston time
     for h in history:
-        h.timestamp = h.timestamp.astimezone(houston_tz)
+        h.timestamp = h.timestamp.astimezone(ZoneInfo("America/Chicago"))
 
     return render_template('history.html', cylinder=cylinder, history=history)
+
 
 
 @app.route('/movement/<int:cylinder_id>')
