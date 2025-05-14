@@ -545,7 +545,7 @@ with app.app_context():
         print('✅ Admin user created (username=admin, password=admin123)')
     else:
         print('✅ Admin user already exists.')
-   print('✅ Admin user already exists.')
+        print('✅ Admin user already exists.')
 
 
 
