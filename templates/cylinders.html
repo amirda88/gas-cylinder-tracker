@@ -40,6 +40,8 @@
         <th>Log Out</th>
         {% if session.get('role') == 'admin' %}
             <th>Delete</th>
+            <th>Created By</th>
+            <th>Updated By</th>
         {% endif %}
     </tr>
 
@@ -64,6 +66,8 @@
         {% if session.get('role') == 'admin' %}
         <td>
             <a href="/delete_cylinder/{{ cyl.id }}" onclick="return confirm('Are you sure you want to delete this cylinder?')">🗑️ Delete</a>
+            <td>{{ cyl.created_by or "—" }}</td>
+            <td>{{ cyl.updated_by or "—" }}</td>
         </td>
         {% endif %}
     </tr>
