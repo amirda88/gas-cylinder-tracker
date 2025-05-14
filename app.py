@@ -410,8 +410,8 @@ def generate_pdf():
     # TABLE HEADER
     y = height - 50
     pdf.setFont("Helvetica-Bold", 10)
-    headers = ["ID", "Type", "Gas", "Size", "Status", "Registered", "Updated"]
-    x_positions = [50, 100, 170, 240, 310, 380, 460]
+    headers = ["ID", "Type", "Gas", "Size", "Status", "Registered", "Updated", "Created By", "Updated By"]
+    x_positions = [40, 80, 140, 200, 260, 320, 390, 460, 540]
 
     for i, header in enumerate(headers):
         pdf.drawString(x_positions[i], y, header)
@@ -429,7 +429,9 @@ def generate_pdf():
 
     created = cyl.created_at.astimezone(houston_tz).strftime("%Y-%m-%d") if cyl.created_at else ""
     updated = cyl.updated_at.astimezone(houston_tz).strftime("%Y-%m-%d") if cyl.updated_at else ""
-    values = [cyl.id, cyl.cylinder_type, cyl.gas_type, cyl.size, cyl.status, created, updated]
+    created_by = getattr(cyl, 'created_by', '—') or '—'
+    updated_by = getattr(cyl, 'updated_by', '—') or '—'
+    values = [cyl.id, cyl.cylinder_type, cyl.gas_type, cyl.size, cyl.status, created, updated, created_by, updated_by]
     for i, val in enumerate(values):
         pdf.drawString(x_positions[i], y, str(val))
     y -= 12
