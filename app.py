@@ -142,16 +142,6 @@ def register():
     if not has_permission('register'):
         return "⛔ You don't have permission to register cylinders.", 403
 
-new_cylinder = Cylinder(
-    cylinder_type="Simple",
-    gas_type=gas_type,
-    size=size,
-    status=status,
-    barcode=barcode_id,
-    qr_code=qr_bytes,
-    created_by=session.get('username')  # ✅ Save who registered
-)
-    
     gas_type = request.form['gas_type'].strip().upper()
     size = request.form['size']
     status = request.form['status']
@@ -168,14 +158,15 @@ new_cylinder = Cylinder(
     qr_img.save(buffer, format="PNG")
     qr_bytes = buffer.getvalue()
 
-    # Save cylinder to database
+    # ✅ Save cylinder to database
     new_cylinder = Cylinder(
         cylinder_type="Simple",
         gas_type=gas_type,
         size=size,
         status=status,
         barcode=barcode_id,
-        qr_code=qr_bytes
+        qr_code=qr_bytes,
+        created_by=session.get('username')  # ✅ Save who registered
     )
     db.session.add(new_cylinder)
     db.session.commit()
@@ -191,8 +182,6 @@ new_cylinder = Cylinder(
     <a href="/">➕ Register Another</a> |
     <a href="/cylinders">📋 View Cylinders</a>
     '''
-
-
 
 # app.py
 
