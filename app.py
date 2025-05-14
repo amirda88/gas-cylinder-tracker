@@ -9,7 +9,7 @@ from flask_sqlalchemy import SQLAlchemy
 import barcode
 from barcode.writer import ImageWriter
 import qrcode  # ⬅️ Add this at the top of your file if it's not there
-
+from sqlalchemy import text
 
 app = Flask(__name__)
 app.secret_key = 'supersecret123'  # 🛡️ Required for login session
