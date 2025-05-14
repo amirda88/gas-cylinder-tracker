@@ -18,12 +18,14 @@
             <th>Timestamp</th>
             <th>Old Status</th>
             <th>New Status</th>
+            <th>Updated By</th>
         </tr>
         {% for h in history %}
         <tr>
             <td>{{ h.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
             <td>{{ h.old_status }}</td>
             <td>{{ h.new_status }}</td>
+            <td>{{ h.updated_by or '—' }}</td>
         </tr>
         {% endfor %}
     </table>
