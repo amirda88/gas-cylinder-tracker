@@ -31,6 +31,7 @@ class Cylinder(db.Model):
     status = db.Column(db.String(10))
     barcode = db.Column(db.String(50), unique=True)
     qr_code = db.Column(LargeBinary)  # ✅ Add this line
+    created_by = db.Column(db.String(100))  # ✅ Track who registered the cylinder
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime)
 
@@ -41,6 +42,7 @@ class StatusHistory(db.Model):
     cylinder_id = db.Column(db.Integer, db.ForeignKey('cylinder.id'))
     old_status = db.Column(db.String(10))
     new_status = db.Column(db.String(10))
+    updated_by = db.Column(db.String(100))  # ✅ Track who updated the cylinder
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
 class MovementLog(db.Model):
@@ -48,6 +50,7 @@ class MovementLog(db.Model):
     cylinder_id = db.Column(db.Integer, db.ForeignKey('cylinder.id'))
     action = db.Column(db.String(10))  # "IN" or "OUT"
     note = db.Column(db.String(200))
+    performed_by = db.Column(db.String(100))  # ✅ Track who performed the movement
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
 class User(db.Model):
