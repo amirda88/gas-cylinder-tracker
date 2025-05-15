@@ -536,7 +536,10 @@ with app.app_context():
             WHERE table_name='cylinder' AND column_name='created_by'
         """))
         if result.rowcount == 0:
-            conn.execute(text("ALTER TABLE cylinder ADD COLUMN created_by VARCHAR(100);"))
+            conn.execute(text("ALTER TABLE cylinder ADD COLUMN created_by VARCHAR(100)"))
+            print("✅ 'created_by' column added to 'cylinder' table.")
+        else:
+            print("✅ 'created_by' column already exists.")
 
     # ✅ Create admin user if not exist
     if not User.query.filter_by(username='admin').first():
