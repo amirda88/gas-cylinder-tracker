@@ -294,6 +294,11 @@ def dashboard():
     base_query = Cylinder.query
     if selected_gas:
         base_query = base_query.filter(Cylinder.gas_type == selected_gas)
+    labels, counts = [], []
+    for status in statuses:
+        count = base_query.filter(Cylinder.status == status).count()
+        labels.append(status)
+        counts.append(count)
 
     # 1. Pie Chart - Status Overview (include all except 'Returned')
     status_list = ['Full', '75%', '50%', '25%', 'Empty', 'On Service']
