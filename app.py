@@ -528,12 +528,11 @@ from sqlalchemy import text
 with app.app_context():
     db.create_all()
 
-    # ✅ Ensure `created_by` column exists
+# ✅ Ensure 'created_by' column exists
 with app.app_context():
     db.create_all()
 
-    # ✅ Ensure `created_by` column exists
-    with db.engine.begin() as conn:  # <-- begin() commits automatically
+    with db.engine.begin() as conn:
         result = conn.execute(text("""
             SELECT column_name 
             FROM information_schema.columns 
@@ -545,6 +544,8 @@ with app.app_context():
         else:
             print("✅ 'created_by' column already exists.")
 
+    # ✅ Create admin user if not exist
+    if not User.query.filter_by(username='admin').first():
         admin_user = User(
             username='admin',
             password='admin123',
@@ -556,6 +557,7 @@ with app.app_context():
         print('✅ Admin user created (username=admin, password=admin123)')
     else:
         print('✅ Admin user already exists.')
+
 
 
 
