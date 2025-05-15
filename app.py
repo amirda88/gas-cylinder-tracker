@@ -528,16 +528,16 @@ from sqlalchemy import text
 with app.app_context():
     db.create_all()
 
+    # ✅ Ensure `created_by` column exists
     with db.engine.connect() as conn:
-        # ✅ Properly check if column exists
         result = conn.execute(text("""
             SELECT column_name 
             FROM information_schema.columns 
             WHERE table_name='cylinder' AND column_name='created_by'
         """))
         if result.rowcount == 0:
-            conn.execute(text("ALTER TABLE cylinder ADD COLUMN created_by VARCHAR(100)"))
-            print("✅ 'created_by' column added to 'cylinder' table.")
+            conn.execute(text("ALTER TABLE cylinder ADD COLUMN created_by VARCHAR(100);"))
+            print("✅ 'created_by' column added.")
         else:
             print("✅ 'created_by' column already exists.")
 
