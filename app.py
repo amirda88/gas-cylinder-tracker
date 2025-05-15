@@ -527,10 +527,11 @@ with app.app_context():
     db.create_all()
 
     # ✅ Ensure `created_by` column exists (without losing data)
-    with db.engine.connect() as conn:
-        result = conn.execute("SELECT column_name FROM information_schema.columns WHERE table_name='cylinder' AND column_name='created_by'")
-        if result.rowcount == 0:
-            conn.execute("ALTER TABLE cylinder ADD COLUMN created_by VARCHAR(100);")
+with db.engine.connect() as conn:
+    result = conn.execute(text("SELECT column_name FROM information_schema.columns WHERE table_name='cylinder' AND column_name='created_by'"))
+    if result.rowcount == 0:
+        conn.execute(text("ALTER TABLE cylinder ADD COLUMN created_by VARCHAR(100);"))
+
 
     # ✅ Create admin user if not exist
     if not User.query.filter_by(username='admin').first():
