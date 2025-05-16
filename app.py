@@ -530,44 +530,53 @@ def log_out_cylinder(cylinder_id):
 
 
 
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
 
-with db.engine.begin() as conn:
-    # ✅ Ensure 'created_by' column exists
-    result = conn.execute(text("""
-        SELECT column_name 
-        FROM information_schema.columns 
-        WHERE table_name='cylinder' AND column_name='created_by'
-    """))
-    if not result.fetchone():
-        conn.execute(text("ALTER TABLE cylinder ADD COLUMN created_by VARCHAR(100);"))
-        print("✅ 'created_by' column added.")
-    else:
-        print("✅ 'created_by' column already exists.")
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'your_database_url_here'
+db = SQLAlchemy(app)
 
-    # ✅ Ensure 'updated_by' column exists in status_history
-    result = conn.execute(text("""
-        SELECT column_name 
-        FROM information_schema.columns 
-        WHERE table_name='status_history' AND column_name='updated_by'
-    """))
-    if not result.fetchone():
-        conn.execute(text("ALTER TABLE status_history ADD COLUMN updated_by VARCHAR(100);"))
-        print("✅ 'updated_by' column added to status_history.")
-    else:
-        print("✅ 'updated_by' column already exists in status_history.")
+with app.app_context():
+    db.create_all()
 
-    # ✅ Ensure 'performed_by' column exists in movement_log
-    result = conn.execute(text("""
-        SELECT column_name 
-        FROM information_schema.columns 
-        WHERE table_name='movement_log' AND column_name='performed_by'
-    """))
-    if not result.fetchone():
-        conn.execute(text("ALTER TABLE movement_log ADD COLUMN performed_by VARCHAR(100);"))
-        print("✅ 'performed_by' column added to movement_log.")
-    else:
-        print("✅ 'performed_by' column already exists in movement_log.")
+    with db.engine.begin() as conn:
+        # ✅ Ensure 'created_by' column exists
+        result = conn.execute(text("""
+            SELECT column_name 
+            FROM information_schema.columns 
+            WHERE table_name='cylinder' AND column_name='created_by'
+        """))
+        if not result.fetchone():
+            conn.execute(text("ALTER TABLE cylinder ADD COLUMN created_by VARCHAR(100);"))
+            print("✅ 'created_by' column added.")
+        else:
+            print("✅ 'created_by' column already exists.")
+
+        # ✅ Ensure 'updated_by' column exists in status_history
+        result = conn.execute(text("""
+            SELECT column_name 
+            FROM information_schema.columns 
+            WHERE table_name='status_history' AND column_name='updated_by'
+        """))
+        if not result.fetchone():
+            conn.execute(text("ALTER TABLE status_history ADD COLUMN updated_by VARCHAR(100);"))
+            print("✅ 'updated_by' column added to status_history.")
+        else:
+            print("✅ 'updated_by' column already exists in status_history.")
+
+        # ✅ Ensure 'performed_by' column exists in movement_log
+        result = conn.execute(text("""
+            SELECT column_name 
+            FROM information_schema.columns 
+            WHERE table_name='movement_log' AND column_name='performed_by'
+        """))
+        if not result.fetchone():
+            conn.execute(text("ALTER TABLE movement_log ADD COLUMN performed_by VARCHAR(100);"))
+            print("✅ 'performed_by' column added to movement_log.")
+        else:
+            print("✅ 'performed_by' column already exists in movement_log.")
 
 
 
