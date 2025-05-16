@@ -89,6 +89,42 @@ def add_user():
 
     return render_template('add_user.html')
 
+@app.route('/edit', methods=['GET', 'POST'])
+def edit_cylinder():
+    if not session.get('logged_in'):
+        return redirect('/login')
+    cylinder = None
+
+    if request.method == 'POST':
+        barcode_input = request.form.get('barcode')
+
+        if 'save' in request.form:
+            # Save changes
+            new_gas_type = request.form['gas_type'].strip().upper()
+            new_size = request.form['size']
+            cylinder = Cylinder.query.filter_by(barcode=barcode_input).first()
+
+            if cylinder:
+                cylinder.gas_type = new_gas_type
+                cylinder.size = new_size
+                cylinder.updated_at = datetime.utcnow()
+                db.session.commit()
+
+                return f'''
+                    ✅ Name and size updated for <b>{barcode_input}</b><br><br>
+                    <a href="/edit">✏️ Edit Another</a> | 
+                    <a href="/cylinders">📋 View All</a>
+                '''
+        else:
+            # Barcode search
+            cylinder = Cylinder.query.filter_by(barcode=barcode_input).first()
+            if not cylinder:
+                return f"❌ Cylinder with barcode <b>{barcode_input}</b> not found.<br><a href='/edit'>Try Again</a>"
+
+    return render_template('edit.html', cylinder=cylinder)
+
+
+
 
 # ✏️ Edit a user's role and permissions
 @app.route('/edit_user/<int:user_id>', methods=['GET', 'POST'])
