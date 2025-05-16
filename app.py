@@ -532,8 +532,6 @@ def log_out_cylinder(cylinder_id):
 
 from sqlalchemy import text
 
-with app.app_context():
-    db.create_all()
 
 # ✅ Ensure 'created_by' column exists
 with app.app_context():
