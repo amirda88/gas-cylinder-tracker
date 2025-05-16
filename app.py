@@ -286,6 +286,8 @@ def dashboard():
     if not has_permission('dashboard'):
         return "⛔ You don't have permission to view dashboard.", 403
 
+    statuses = ['Full', '75%', '50%', '25%', 'Empty', 'On Service']
+
     # Get distinct gas types
     gas_types = [row[0] for row in db.session.query(Cylinder.gas_type).distinct().all()]
     selected_gas = request.args.get('gas_type')
