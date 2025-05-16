@@ -530,61 +530,47 @@ def log_out_cylinder(cylinder_id):
 
 
 
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import text
-
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://admin:IogWBRVd24QjJQZR9dfAf4cqWC5QbXX8@dpg-d09aan49c44c73dc7e1g-a.oregon-postgres.render.com/cylinders'
-db = SQLAlchemy(app)
-
-with app.app_context():
-    db.create_all()
-
-    with db.engine.begin() as conn:
-        # ✅ Ensure 'created_by' column exists
-        result = conn.execute(text("""
-            SELECT column_name 
-            FROM information_schema.columns 
-            WHERE table_name='cylinder' AND column_name='created_by'
-        """))
-        if not result.fetchone():
-            conn.execute(text("ALTER TABLE cylinder ADD COLUMN created_by VARCHAR(100);"))
-            print("✅ 'created_by' column added.")
-        else:
-            print("✅ 'created_by' column already exists.")
-
-        # ✅ Ensure 'updated_by' column exists in status_history
-        result = conn.execute(text("""
-            SELECT column_name 
-            FROM information_schema.columns 
-            WHERE table_name='status_history' AND column_name='updated_by'
-        """))
-        if not result.fetchone():
-            conn.execute(text("ALTER TABLE status_history ADD COLUMN updated_by VARCHAR(100);"))
-            print("✅ 'updated_by' column added to status_history.")
-        else:
-            print("✅ 'updated_by' column already exists in status_history.")
-
-        # ✅ Ensure 'performed_by' column exists in movement_log
-        result = conn.execute(text("""
-            SELECT column_name 
-            FROM information_schema.columns 
-            WHERE table_name='movement_log' AND column_name='performed_by'
-        """))
-        if not result.fetchone():
-            conn.execute(text("ALTER TABLE movement_log ADD COLUMN performed_by VARCHAR(100);"))
-            print("✅ 'performed_by' column added to movement_log.")
-        else:
-            print("✅ 'performed_by' column already exists in movement_log.")
-
-
-
-
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    with app.app_context():
+        db.create_all()
 
+        with db.engine.begin() as conn:
+            # ✅ Ensure 'created_by' column exists
+            result = conn.execute(text("""
+                SELECT column_name 
+                FROM information_schema.columns 
+                WHERE table_name='cylinder' AND column_name='created_by'
+            """))
+            if not result.fetchone():
+                conn.execute(text("ALTER TABLE cylinder ADD COLUMN created_by VARCHAR(100);"))
+                print("✅ 'created_by' column added.")
+            else:
+                print("✅ 'created_by' column already exists.")
 
-    port = int(os.environ.get('PORT', 5000))  # ✅ Use Render-provided PORT
-    app.run(host='0.0.0.0', port=port)
+            # ✅ Ensure 'updated_by' column exists in status_history
+            result = conn.execute(text("""
+                SELECT column_name 
+                FROM information_schema.columns 
+                WHERE table_name='status_history' AND column_name='updated_by'
+            """))
+            if not result.fetchone():
+                conn.execute(text("ALTER TABLE status_history ADD COLUMN updated_by VARCHAR(100);"))
+                print("✅ 'updated_by' column added to status_history.")
+            else:
+                print("✅ 'updated_by' column already exists in status_history.")
+
+            # ✅ Ensure 'performed_by' column exists in movement_log
+            result = conn.execute(text("""
+                SELECT column_name 
+                FROM information_schema.columns 
+                WHERE table_name='movement_log' AND column_name='performed_by'
+            """))
+            if not result.fetchone():
+                conn.execute(text("ALTER TABLE movement_log ADD COLUMN performed_by VARCHAR(100);"))
+                print("✅ 'performed_by' column added to movement_log.")
+            else:
+                print("✅ 'performed_by' column already exists in movement_log.")
+
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=True)
