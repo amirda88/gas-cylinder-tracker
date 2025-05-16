@@ -34,31 +34,39 @@
   function startScanner() {
     const html5QrCode = new Html5Qrcode("reader");
 
-    Html5Qrcode.getCameras().then(devices => {
-      if (devices && devices.length) {
-        const cameraId = devices[0].id;
+Html5Qrcode.getCameras().then(devices => {
+  if (devices && devices.length) {
+    // Try to find a front-facing camera
+    let frontCam = devices.find(device => 
+      device.label.toLowerCase().includes("front") || 
+      device.label.toLowerCase().includes("user")
+    );
 
-        html5QrCode.start(
-          cameraId,
-          {
-            fps: 10,
-            qrbox: 250
-          },
-          qrCodeMessage => {
-            document.getElementById('barcode').value = qrCodeMessage;
-            html5QrCode.stop();
-            document.getElementById('reader').innerHTML = '';
-          },
-          errorMessage => {
-            // ignore read errors
-          })
-          .catch(err => {
-            console.error("Unable to start scanning", err);
-          });
+    const cameraId = frontCam ? frontCam.id : devices[0].id;
+
+    const html5QrCode = new Html5Qrcode("reader");
+    html5QrCode.start(
+      cameraId,
+      {
+        fps: 10,
+        qrbox: 250
+      },
+      qrCodeMessage => {
+        document.getElementById('barcode').value = qrCodeMessage;
+        html5QrCode.stop();
+        document.getElementById('reader').innerHTML = '';
+      },
+      errorMessage => {
+        // ignore read errors
       }
-    }).catch(err => {
-      console.error("Camera access denied or not found", err);
+    ).catch(err => {
+      console.error("Unable to start scanning", err);
     });
+  }
+}).catch(err => {
+  console.error("Camera access denied or not found", err);
+});
+
   }
 </script>
 
