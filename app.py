@@ -535,7 +535,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'your_database_url_here'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://admin:IogWBRv...@d090...render.com/cylinders'
 db = SQLAlchemy(app)
 
 with app.app_context():
