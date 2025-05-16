@@ -12,7 +12,7 @@
 
     <form method="POST">
         <label>Scan or Enter Barcode:</label><br>
-        <input type="text" name="barcode" required autofocus value="{{ cylinder.barcode if cylinder else '' }}">
+        <input type="text" name="barcode" id="barcode" required autofocus value="{{ cylinder.barcode if cylinder else '' }}">
         <button type="submit" name="search">🔍 Search</button>
         <br><br>
 
